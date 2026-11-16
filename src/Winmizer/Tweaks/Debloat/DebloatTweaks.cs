@@ -49,6 +49,8 @@ public static class DebloatTweaks
         "windows.immersivecontrolpanel", "Microsoft.AsyncTextService", "Microsoft.Win32WebViewHost", "Microsoft.BioEnrollment",
     };
 
+    public static IReadOnlyList<string> ProtectedNames => Protected;
+
     public static bool IsProtected(string pattern) =>
         Protected.Any(p => Wildcard.IsMatch(pattern, p) || Wildcard.IsMatch(p, pattern));
 
@@ -123,10 +125,11 @@ public sealed class AppxTweak : TweakBase
     public override void Apply()
     {
         string p = PS.Q(_pattern);
+        string prot = string.Join(",", DebloatTweaks.ProtectedNames.Select(n => "'" + PS.Q(n) + "'"));
         string script =
-            $"$p='{p}'; " +
-            "Get-AppxPackage -AllUsers -Name $p | ForEach-Object { try { Remove-AppxPackage -Package $_.PackageFullName -AllUsers } catch { Write-Output ('WARN ' + $_.Exception.Message) } }; " +
-            "Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $p } | ForEach-Object { try { Remove-AppxProvisionedPackage -Online -PackageName $_.PackageName | Out-Null } catch { Write-Output ('WARN ' + $_.Exception.Message) } }";
+            $"$p='{p}'; $prot=@({prot}); " +
+            "Get-AppxPackage -AllUsers -Name $p | Where-Object { $n=$_.Name; -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxPackage -Package $_.PackageFullName -AllUsers } catch { Write-Output ('WARN ' + $_.Exception.Message) } }; " +
+            "Get-AppxProvisionedPackage -Online | Where-Object { $n=$_.DisplayName; $n -like $p -and -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxProvisionedPackage -Online -PackageName $_.PackageName | Out-Null } catch { Write-Output ('WARN ' + $_.Exception.Message) } }";
         var r = PS.Run(script, description: $"Usunąłbym pakiet Appx: {_pattern} (Remove-AppxPackage -AllUsers + Remove-AppxProvisionedPackage)");
         foreach (var line in r.Out.Split('\n').Where(l => l.StartsWith("WARN"))) Ctx.Log.Warn($"{_pattern}: {line.Trim()}");
         if (!r.Ok) throw new InvalidOperationException(r.Text);

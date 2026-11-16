@@ -41,6 +41,7 @@ public static class Program
         {
             if (Has("--help") || Has("-h") || Has("/?")) { Console.WriteLine(Help); return 0; }
             if (Has("--list")) return Cli.List();
+            if (Has("--list-md")) return Cli.ListMarkdown();
 
             bool quick = Has("--quick"), revertAll = Has("--revert-all");
             string? apply = Value("--apply");
@@ -106,6 +107,27 @@ internal static class Cli
     }
 
     private static bool SafeApplied(ITweak t) { try { return t.IsApplied(); } catch { return false; } }
+
+    /// <summary>Prints the tweak reference as Markdown (used to generate the README tables).</summary>
+    public static int ListMarkdown()
+    {
+        var sb = new StringBuilder();
+        foreach (var cat in Enum.GetValues<TweakCategory>())
+        {
+            var list = TweakCatalog.ByCategory(cat).ToList();
+            sb.AppendLine($"### {Labels.Category(cat)} ({list.Count})\n");
+            sb.AppendLine("| ID | Tweak | Ryzyko | Quick | Opis |");
+            sb.AppendLine("|----|-------|--------|:-----:|------|");
+            foreach (var t in list)
+            {
+                string d = t.Description.Replace("|", "/") + (t.Warning != null ? " **Uwaga:** " + t.Warning.Replace("|", "/") : "");
+                sb.AppendLine($"| `{t.Id}` | {t.Name.Replace("|", "/")} | {Labels.Risk(t.Risk)} | {(t.Recommended && t.Risk != RiskLevel.Advanced ? "tak" : "")} | {d} |");
+            }
+            sb.AppendLine();
+        }
+        Console.Out.Write(sb.ToString());
+        return 0;
+    }
 
     public static int Batch(bool quick, string? apply, bool revertAll)
     {

@@ -75,6 +75,22 @@ public static class Program
     private static bool RequireAdmin()
     {
         if (Admin.IsElevated()) return true;
+
+        // Offer UAC elevation by relaunching with the same arguments in a new window.
+        try
+        {
+            string? exe = Environment.ProcessPath;
+            if (!string.IsNullOrEmpty(exe) && !Path.GetFileNameWithoutExtension(exe).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = true, Verb = "runas" };
+                foreach (var a in Environment.GetCommandLineArgs().Skip(1)) psi.ArgumentList.Add(a);
+                System.Diagnostics.Process.Start(psi);
+                AnsiConsole.MarkupLine("[grey]Uruchomiono nowe okno z uprawnieniami administratora.[/]");
+                return false;
+            }
+        }
+        catch { /* UAC declined - fall through to the instructions below */ }
+
         AnsiConsole.Write(new Panel(
             "Winmizer musi działać z [bold]uprawnieniami administratora[/], aby zmieniać ustawienia systemu.\n\n" +
             "Zamknij to okno i uruchom program ponownie: [bold]prawy przycisk myszy -> Uruchom jako administrator[/].\n" +

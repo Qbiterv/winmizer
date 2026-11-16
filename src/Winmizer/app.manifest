@@ -3,8 +3,8 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- Winmizer changes system settings, so it must run elevated. -->
-        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+        <!-- Elevation is requested at runtime (Program.RequireAdmin) so --list/--help/--dry-run work without UAC. -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>

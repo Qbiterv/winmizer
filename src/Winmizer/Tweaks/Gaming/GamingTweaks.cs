@@ -22,7 +22,11 @@ public static class GamingTweaks
         yield return new RegistryTweak("gaming.hags", "Planowanie GPU przyspieszane sprzętowo (HAGS)",
             "Ustawia HwSchMode=2. Może zmniejszyć opóźnienia i obciążenie CPU; wymaga wspieranej karty i sterownika. Wymaga restartu.",
             c, RiskLevel.Moderate, Dw(@"HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers", "HwSchMode", 2))
-        { Warning = "Na starszych GPU/sterownikach może powodować artefakty - w razie problemów użyj Cofnij." };
+        {
+            Warning = "Na starszych GPU/sterownikach może powodować artefakty - w razie problemów użyj Cofnij.",
+            MinBuild = 19041, // Windows 10 2004+
+            OsNote = "Wymaga Windows 10 2004+ (build 19041) oraz karty z WDDM 2.7+ i nowego sterownika; bez tego ustawienie jest ignorowane."
+        };
 
         yield return new RegistryTweak("gaming.gamedvr", "Wyłącz Game DVR / nagrywanie w tle",
             "Wyłącza nagrywanie w tle Xbox Game Bar (GameDVR_Enabled=0, AllowGameDVR=0). Sam Game Bar i usługi Xbox pozostają.",
@@ -73,7 +77,12 @@ public static class GamingTweaks
         yield return new RegistryTweak("gaming.vrr", "Optymalizacje gier w oknie + VRR",
             "Włącza SwapEffectUpgradeEnable i VRROptimizeEnable (DirectX) - mniejsze opóźnienie w grach okienkowych i zmienne odświeżanie.",
             c, RiskLevel.Safe,
-            () => new[] { Sz(DxKey, "DirectXUserGlobalSettings", MergeDx()) }) { Recommended = true };
+            () => new[] { Sz(DxKey, "DirectXUserGlobalSettings", MergeDx()) })
+        {
+            Recommended = true,
+            MinBuild = 18362, // Windows 10 1903+ (flags do not exist earlier)
+            OsNote = OsInfo.IsWin11 ? null : "Windows 10 ma tylko częściowe wsparcie (VRR od 1903, optymalizacje okienkowe działają w ograniczonym zakresie)."
+        };
     }
 
     /// <summary>Merges our flags into the existing DirectXUserGlobalSettings string (keeps other settings).</summary>

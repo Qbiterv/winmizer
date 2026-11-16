@@ -50,7 +50,7 @@ public static class ServiceHelper
 
     public static void Stop(string name)
     {
-        if (IsProtected(name) && !name.Equals("wuauserv", StringComparison.OrdinalIgnoreCase))
+        if (IsProtected(name))
             throw new InvalidOperationException($"Usługa {name} jest chroniona.");
         if (!Ctx.DryRun && !IsRunning(name)) return;
         Proc.Run("net.exe", new[] { "stop", name, "/y" }, timeoutMs: 60_000, description: $"Zatrzymałbym usługę {name}");

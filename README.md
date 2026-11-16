@@ -176,13 +176,12 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `storage.trim` | Upewnij się, że TRIM jest włączony | Bezpieczny | tak | fsutil behavior set DisableDeleteNotify 0 - system informuje SSD o zwolnionych blokach (wydajność i żywotność). |
 | `storage.lastaccess` | Wyłącz znacznik ostatniego dostępu NTFS | Bezpieczny | tak | fsutil behavior set disablelastaccess 1 - mniej zapisów na dysk przy każdym odczycie pliku. |
 
-### Czyszczenie (5)
+### Czyszczenie (4)
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
 | `cleanup.temp` | Wyczyść pliki tymczasowe (%TEMP% i Windows\Temp) | Bezpieczny | tak | Usuwa pliki tymczasowe użytkownika i systemu. Pliki używane przez działające programy są pomijane. Prefetch NIE jest czyszczony. |
 | `cleanup.shader` | Wyczyść pamięć podręczną shaderów (DirectX/NVIDIA/AMD) | Umiarkowany |  | Usuwa D3DSCache, NVIDIA DXCache/GLCache i AMD DxCache. Gry skompilują shadery od nowa - pierwsze uruchomienie może się lekko dławić. |
-| `cleanup.wucache` | Wyczyść pamięć podręczną Windows Update (SoftwareDistribution\Download) | Umiarkowany |  | Zatrzymuje usługę wuauserv, usuwa pobrane pliki aktualizacji i uruchamia usługę ponownie. Aktualizacje zostaną pobrane ponownie w razie potrzeby. |
 | `cleanup.recyclebin` | Opróżnij Kosz | Umiarkowany |  | Trwale usuwa wszystko z Kosza. **Uwaga:** Operacja nieodwracalna - sprawdź zawartość Kosza. |
 | `cleanup.dism` | DISM: czyszczenie składników (StartComponentCleanup) | Zaawansowany |  | DISM /Online /Cleanup-Image /StartComponentCleanup - usuwa stare wersje składników systemu. Bezpieczne, ale trwa kilka-kilkanaście minut. |
 

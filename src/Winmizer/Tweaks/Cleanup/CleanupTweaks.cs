@@ -28,8 +28,6 @@ public static class CleanupTweaks
                 Path.Combine(local, "D3DSCache"), Path.Combine(local, "NVIDIA", "DXCache"), Path.Combine(local, "NVIDIA", "GLCache"),
                 Path.Combine(local, "AMD", "DxCache"), Path.Combine(local, "AMD", "DxcCache"), Path.Combine(local, "AMD", "GLCache")
             });
-
-        yield return new WindowsUpdateCacheTweak();
         yield return new RecycleBinTweak();
         yield return new DismCleanupTweak();
     }
@@ -83,38 +81,6 @@ public sealed class FolderCleanTweak : ActionTweak
         FreedBytes = Math.Max(0, before - after);
         ResultNote = "zwolniono " + CleanupTweaks.FormatSize(FreedBytes);
         Ctx.Log.Info($"{Id}: {ResultNote}");
-    }
-}
-
-public sealed class WindowsUpdateCacheTweak : ActionTweak
-{
-    public WindowsUpdateCacheTweak() : base("cleanup.wucache", "Wyczyść pamięć podręczną Windows Update (SoftwareDistribution\\Download)",
-        "Zatrzymuje usługę wuauserv, usuwa pobrane pliki aktualizacji i uruchamia usługę ponownie. Aktualizacje zostaną pobrane ponownie w razie potrzeby.",
-        TweakCategory.Cleanup, RiskLevel.Moderate)
-    { }
-
-    public override void Apply()
-    {
-        string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SoftwareDistribution", "Download");
-        long before = FolderCleaner.Size(dir);
-        if (Ctx.DryRun)
-        {
-            Ctx.Log.Dry($"Zatrzymałbym wuauserv, usunął {CleanupTweaks.FormatSize(before)} z {dir} i uruchomił wuauserv ponownie.");
-            ResultNote = "do zwolnienia ~" + CleanupTweaks.FormatSize(before);
-            return;
-        }
-        bool wasRunning = ServiceHelper.IsRunning("wuauserv");
-        try
-        {
-            ServiceHelper.Stop("wuauserv");
-            FolderCleaner.Clean(dir);
-        }
-        finally
-        {
-            if (wasRunning) ServiceHelper.StartNow("wuauserv"); // always restore the update service
-        }
-        FreedBytes = Math.Max(0, before - FolderCleaner.Size(dir));
-        ResultNote = "zwolniono " + CleanupTweaks.FormatSize(FreedBytes);
     }
 }
 

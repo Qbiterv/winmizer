@@ -151,7 +151,32 @@ public static class DnsHelper
 public static class Hardware
 {
     private static bool? _laptop;
-    public static bool IsLaptop => _laptop ??= Query("SELECT * FROM Win32_Battery", "Name").Count > 0;
+    public static bool IsLaptop => _laptop ??= DetectLaptop();
+
+    // A battery alone is not enough (desktops with a USB UPS report one), so the chassis type decides first.
+    private static bool DetectLaptop()
+    {
+        try
+        {
+            using var s = new System.Management.ManagementObjectSearcher("SELECT ChassisTypes FROM Win32_SystemEnclosure");
+            var mobile = new HashSet<int> { 8, 9, 10, 11, 12, 14, 18, 21, 30, 31, 32 };
+            bool known = false;
+            foreach (System.Management.ManagementBaseObject o in s.Get())
+            {
+                if (o["ChassisTypes"] is not Array arr) continue;
+                foreach (var c in arr)
+                {
+                    int t = Convert.ToInt32(c);
+                    if (t is 0 or 1 or 2) continue; // other / unknown
+                    known = true;
+                    if (mobile.Contains(t)) return true;
+                }
+            }
+            if (known) return false;
+        }
+        catch { }
+        return Query("SELECT * FROM Win32_Battery", "Name").Count > 0;
+    }
 
     private static List<string> Query(string wql, string prop)
     {

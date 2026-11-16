@@ -48,18 +48,51 @@ internal static class FolderCleaner
         return total;
     }
 
-    /// <summary>Deletes the contents of a folder (keeps the folder). Locked files are skipped.</summary>
+    /// <summary>True if the folder is a drive root or a well-known system/profile folder that must never be emptied.</summary>
+    public static bool IsDangerous(string path)
+    {
+        try
+        {
+            string full = Path.GetFullPath(path).TrimEnd('\\', '/');
+            if (full.Length <= 3 || Path.GetPathRoot(full)!.TrimEnd('\\', '/').Equals(full, StringComparison.OrdinalIgnoreCase)) return true;
+            var bad = new[]
+            {
+                Environment.SpecialFolder.Windows, Environment.SpecialFolder.System, Environment.SpecialFolder.UserProfile,
+                Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86,
+                Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolder.ApplicationData,
+                Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolder.Desktop,
+                Environment.SpecialFolder.MyDocuments
+            };
+            return bad.Select(Environment.GetFolderPath).Where(p => p.Length > 0)
+                .Any(p => p.TrimEnd('\\', '/').Equals(full, StringComparison.OrdinalIgnoreCase));
+        }
+        catch { return true; }
+    }
+
+    /// <summary>Deletes the contents of a folder (keeps the folder). Locked files are skipped;
+    /// junctions/symlinks are never followed.</summary>
     public static void Clean(string path)
     {
         if (!Directory.Exists(path)) return;
+        if (IsDangerous(path))
+        {
+            Ctx.Log.Warn("Pominięto niebezpieczny folder czyszczenia: " + path);
+            return;
+        }
         var di = new DirectoryInfo(path);
         foreach (var f in di.EnumerateFiles())
             try { f.Delete(); } catch { }
         foreach (var d in di.EnumerateDirectories())
-            try { d.Delete(true); } catch { }
+        {
+            try
+            {
+                if (d.Attributes.HasFlag(FileAttributes.ReparsePoint)) d.Delete(false); // remove the link only
+                else d.Delete(true);
+            }
+            catch { }
+        }
     }
 }
-
 public sealed class FolderCleanTweak : ActionTweak
 {
     private readonly string[] _folders;

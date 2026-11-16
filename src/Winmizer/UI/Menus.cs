@@ -158,7 +158,7 @@ public static class Menus
                 AnsiConsole.MarkupLine($"[red]Błąd:[/] {Ui.Esc(c.Startup!.Name)} - {Ui.Esc(ex.Message)}");
             }
         }
-        Ctx.Backup.Save();
+        Ctx.Backup.TrySave();
         foreach (var (_, m) in Ctx.Log.Drain()) AnsiConsole.MarkupLine($"[grey]  {Ui.Esc(m)}[/]");
     }
 

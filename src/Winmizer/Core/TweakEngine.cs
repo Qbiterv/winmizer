@@ -74,7 +74,7 @@ public sealed class TweakEngine
                 Ctx.Log.Error($"{t.Id}: {ex}");
                 res = new TweakResult(t, ResultStatus.Failed, ex.Message);
             }
-            Ctx.Backup.Save();
+            Ctx.Backup.TrySave();
             results.Add(res);
             onDone?.Invoke(res);
         }
@@ -101,7 +101,7 @@ public sealed class TweakEngine
                 Ctx.Log.Error($"Revert {t.Id}: {ex}");
                 res = new TweakResult(t, ResultStatus.Failed, ex.Message);
             }
-            Ctx.Backup.Save();
+            Ctx.Backup.TrySave();
             results.Add(res);
             onDone?.Invoke(res);
         }
@@ -129,7 +129,7 @@ public sealed class TweakEngine
                 Ctx.Log.Error($"Revert {id}: {ex}");
                 results.Add(new TweakResult(tweak, ResultStatus.Failed, ex.Message));
             }
-            Ctx.Backup.Save();
+            Ctx.Backup.TrySave();
             onDone?.Invoke(results[^1]);
         }
         return results;

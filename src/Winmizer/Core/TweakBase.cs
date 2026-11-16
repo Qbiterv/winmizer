@@ -65,9 +65,11 @@ public sealed class RegistryTweak : TweakBase
 
     public override void Apply()
     {
-        foreach (var e in _entries().ToList())
+        var list = _entries().ToList();
+        foreach (var e in list) Ctx.Backup.RecordReg(Id, e.Key, e.Name);
+        Ctx.Backup.Save(); // originals hit the disk before the first write
+        foreach (var e in list)
         {
-            Ctx.Backup.RecordReg(Id, e.Key, e.Name);
             if (e.Value is null) Reg.Delete(e.Key, e.Name);
             else Reg.Set(e.Key, e.Name, e.Value, e.Kind);
         }

@@ -45,7 +45,7 @@ public sealed class BackupStore
         catch (Exception ex)
         {
             Ctx.Log.Warn("Nie można wczytać backup.json: " + ex.Message);
-            try { File.Copy(Paths.BackupFile, Paths.BackupFile + ".corrupt", true); } catch { }
+            if (!Ctx.DryRun) { try { File.Copy(Paths.BackupFile, Paths.BackupFile + ".corrupt", true); } catch { } }
             _data = new BackupData();
         }
     }
@@ -59,7 +59,7 @@ public sealed class BackupStore
     }
 
     public string? RestorePointInfo { get { EnsureLoaded(); return _data.RestorePoint; } }
-    public void SetRestorePoint(string info) { EnsureLoaded(); if (!Ctx.DryRun) { _data.RestorePoint = info; Save(); } }
+    public void SetRestorePoint(string info) { EnsureLoaded(); if (!Ctx.DryRun) { _data.RestorePoint = info; TrySave(); } }
 
     public void Record(string id, BackupEntry entry)
     {
@@ -86,9 +86,11 @@ public sealed class BackupStore
     {
         EnsureLoaded();
         if (Ctx.DryRun) return;
-        if (_data.Tweaks.Remove(id)) Save();
+        if (_data.Tweaks.Remove(id)) TrySave();
     }
 
+    /// <summary>Writes backup.json atomically. Throws on failure so callers never change the system
+    /// without a persisted original value.</summary>
     public void Save()
     {
         EnsureLoaded();
@@ -100,6 +102,13 @@ public sealed class BackupStore
             File.WriteAllText(tmp, JsonSerializer.Serialize(_data, JsonOpts));
             File.Move(tmp, Paths.BackupFile, true);
         }
-        catch (Exception ex) { Ctx.Log.Error("Zapis backup.json nie powiódł się: " + ex.Message); }
+        catch (Exception ex)
+        {
+            Ctx.Log.Error("Zapis backup.json nie powiódł się: " + ex.Message);
+            throw new IOException("Nie można zapisać kopii zapasowej (backup.json) - zmiana wstrzymana: " + ex.Message, ex);
+        }
     }
+
+    /// <summary>Best-effort save used after a change was already made.</summary>
+    public void TrySave() { try { Save(); } catch { } }
 }

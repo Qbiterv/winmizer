@@ -23,6 +23,14 @@ public interface ITweak
     /// <summary>One-shot action (cleanup) rather than a persistent setting.</summary>
     bool IsAction { get; }
     string? Warning { get; }
+    /// <summary>Windows generation the tweak is meant for (default: both).</summary>
+    OsSupport SupportedOn { get; }
+    /// <summary>Minimum Windows build the tweak needs (0 = any).</summary>
+    int MinBuild { get; }
+    /// <summary>Extra per-OS remark (e.g. partial support on Windows 10).</summary>
+    string? OsNote { get; }
+    /// <summary>False when the tweak does not exist / behaves differently on this OS; it is then skipped.</summary>
+    bool IsApplicable { get; }
     /// <summary>Extra info after Apply (e.g. freed space).</summary>
     string? ResultNote { get; }
 

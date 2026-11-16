@@ -59,7 +59,9 @@ public sealed class TweakEngine
             TweakResult res;
             try
             {
-                if (!t.IsAction && t.IsApplied())
+                if (!t.IsApplicable)
+                    res = new TweakResult(t, ResultStatus.Skipped, OsInfo.NotApplicableReason(t.SupportedOn, t.MinBuild));
+                else if (!t.IsAction && t.IsApplied())
                     res = new TweakResult(t, ResultStatus.Skipped, "Już zastosowane");
                 else
                 {
@@ -91,9 +93,17 @@ public sealed class TweakEngine
             TweakResult res;
             try
             {
-                Ctx.Log.Info($"REVERT {t.Id}");
-                t.Revert();
-                res = new TweakResult(t, Ctx.DryRun ? ResultStatus.DryRun : ResultStatus.Reverted, "");
+                if (!t.IsApplicable && !Ctx.Backup.Ids.Contains(t.Id))
+                {
+                    // Nothing was ever applied here, so there is nothing to restore.
+                    res = new TweakResult(t, ResultStatus.Skipped, OsInfo.NotApplicableReason(t.SupportedOn, t.MinBuild));
+                }
+                else
+                {
+                    Ctx.Log.Info($"REVERT {t.Id}");
+                    t.Revert();
+                    res = new TweakResult(t, Ctx.DryRun ? ResultStatus.DryRun : ResultStatus.Reverted, "");
+                }
             }
             catch (TweakSkippedException ex) { res = new TweakResult(t, ResultStatus.Skipped, ex.Message); }
             catch (Exception ex)

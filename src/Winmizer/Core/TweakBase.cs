@@ -15,6 +15,10 @@ public abstract class TweakBase : ITweak
     public RiskLevel Risk { get; }
     public virtual bool Recommended { get; init; }
     public string? Warning { get; init; }
+    public OsSupport SupportedOn { get; init; } = OsSupport.Both;
+    public int MinBuild { get; init; }
+    public string? OsNote { get; init; }
+    public bool IsApplicable => OsInfo.Matches(SupportedOn, MinBuild);
     public virtual bool IsReversible => true;
     public virtual bool IsAction => false;
     public string? ResultNote { get; protected set; }

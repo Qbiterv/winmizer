@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Spectre.Console;
 using Winmizer.Core;
 using Winmizer.Tweaks;
@@ -9,7 +9,7 @@ namespace Winmizer;
 public static class Program
 {
     private const string Help = """
-        Winmizer - optymalizator Windows 11 dla graczy
+        Winmizer - optymalizator Windows 10/11 dla graczy
 
         Użycie:
           Winmizer.exe                     interaktywne menu (wymaga administratora)
@@ -111,13 +111,14 @@ internal static class Cli
         foreach (var t in TweakCatalog.All)
         {
             string status = Ui.StatusMarkup(t);
-            if (!t.IsAction && SafeApplied(t)) applied++;
+            if (t.IsApplicable && !t.IsAction && SafeApplied(t)) applied++;
             table.AddRow(t.Id, Markup.Escape(Labels.Category(t.Category)), Markup.Escape(t.Name), Ui.RiskMarkup(t.Risk),
                 t.Recommended && t.Risk != RiskLevel.Advanced ? "[green]tak[/]" : "", status);
         }
         AnsiConsole.Write(table);
         int total = TweakCatalog.All.Count(t => !t.IsAction);
-        AnsiConsole.MarkupLine($"\nŁącznie tweaków: [bold]{TweakCatalog.All.Count}[/] (ustawienia: {total}, akcje: {TweakCatalog.All.Count - total}); zastosowane: [green]{applied}[/]");
+        int na = TweakCatalog.All.Count(t => !t.IsApplicable);
+        AnsiConsole.MarkupLine($"\nŁącznie tweaków: [bold]{TweakCatalog.All.Count}[/] (ustawienia: {total}, akcje: {TweakCatalog.All.Count - total}); zastosowane: [green]{applied}[/]; niedostępne w tym systemie: [grey]{na}[/]");
         AnsiConsole.MarkupLine($"Laptop: {(Hardware.IsLaptop ? "tak" : "nie")}; plan zasilania: {Markup.Escape(PowerCfg.Active().Name)}");
         return 0;
     }
@@ -137,6 +138,8 @@ internal static class Cli
             foreach (var t in list)
             {
                 string d = t.Description.Replace("|", "/") + (t.Warning != null ? " **Uwaga:** " + t.Warning.Replace("|", "/") : "");
+                if (t.SupportedOn != OsSupport.Both) d += $" *[tylko {(t.SupportedOn == OsSupport.Win11 ? "Windows 11" : "Windows 10")}]*";
+                if (t.OsNote != null) d += " *[" + t.OsNote.Replace("|", "/") + "]*";
                 sb.AppendLine($"| `{t.Id}` | {t.Name.Replace("|", "/")} | {Labels.Risk(t.Risk)} | {(t.Recommended && t.Risk != RiskLevel.Advanced ? "tak" : "")} | {d} |");
             }
             sb.AppendLine();
@@ -158,7 +161,7 @@ internal static class Cli
 
         List<ITweak> tweaks;
         if (quick) tweaks = TweakCatalog.QuickPreset().ToList();
-        else if (string.Equals(apply, "all", StringComparison.OrdinalIgnoreCase)) tweaks = TweakCatalog.All.ToList();
+        else if (string.Equals(apply, "all", StringComparison.OrdinalIgnoreCase)) tweaks = TweakCatalog.Applicable.ToList();
         else
         {
             var ids = apply!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

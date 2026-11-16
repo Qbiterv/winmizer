@@ -74,7 +74,7 @@ public static class Menus
             .AddChoices(Enum.GetValues<TweakCategory>().Where(c => c != TweakCategory.Debloat)));
         if (cats.Count == 0) return;
 
-        var tweaks = TweakCatalog.All.Where(t => cats.Contains(t.Category)).ToList();
+        var tweaks = TweakCatalog.Applicable.Where(t => cats.Contains(t.Category)).ToList();
         Ui.ShowTweakTable(tweaks);
 
         var prompt = new MultiSelectionPrompt<Item>()
@@ -108,7 +108,7 @@ public static class Menus
     {
         AnsiConsole.MarkupLine("[grey]Zawsze zachowane: Sklep Microsoft, App Installer/winget, Kalkulator, Zdjęcia, Notatnik, Terminal, Paint, Narzędzie do wycinania, Aparat, tożsamość Xbox i Gaming Services.[/]");
         var installed = AnsiConsole.Status().Start("Wyszukiwanie zainstalowanych aplikacji...",
-            _ => TweakCatalog.ByCategory(TweakCategory.Debloat).Where(t => !t.IsApplied()).ToList());
+            _ => TweakCatalog.ByCategory(TweakCategory.Debloat).Where(t => t.IsApplicable && !t.IsApplied()).ToList());
         if (installed.Count == 0)
         {
             AnsiConsole.MarkupLine("[green]Brak aplikacji z listy do usunięcia - system jest już czysty.[/]");
@@ -215,7 +215,8 @@ public static class Menus
         {
             var info = new Table().Border(TableBorder.Rounded).BorderColor(Color.Aqua).HideHeaders();
             info.AddColumn("k").AddColumn("v");
-            info.AddRow("[bold]System[/]", Ui.Esc(Hardware.Os));
+            info.AddRow("[bold]System[/]", Ui.Esc(OsInfo.Description) + (OsInfo.IsSupported ? "" : " [yellow](nieobsługiwana wersja)[/]"));
+            info.AddRow("[bold]Zgodność tweaków[/]", $"{TweakCatalog.Applicable.Count()} z {TweakCatalog.All.Count} dostępnych w tym systemie");
             info.AddRow("[bold]Procesor[/]", Ui.Esc(Hardware.Cpu));
             info.AddRow("[bold]Karta graficzna[/]", Ui.Esc(Hardware.Gpus));
             info.AddRow("[bold]Pamięć RAM[/]", Ui.Esc(Hardware.Ram));
@@ -230,7 +231,7 @@ public static class Menus
             int applied = 0, total = 0;
             foreach (var t in TweakCatalog.All)
             {
-                if (!t.IsAction) { total++; if (SafeApplied(t)) applied++; }
+                if (!t.IsAction && t.IsApplicable) { total++; if (SafeApplied(t)) applied++; }
                 table.AddRow(Ui.Esc(Labels.Category(t.Category)), Ui.Esc(t.Name), Ui.RiskMarkup(t.Risk), Ui.StatusMarkup(t));
             }
             AnsiConsole.Write(table);

@@ -36,5 +36,9 @@ public static class TweakCatalog
     public static IEnumerable<ITweak> ByCategory(TweakCategory c) => All.Where(t => t.Category == c);
 
     /// <summary>Quick Optimize preset: recommended, non-advanced tweaks.</summary>
-    public static IEnumerable<ITweak> QuickPreset() => All.Where(t => t.Recommended && t.Risk != RiskLevel.Advanced);
+    public static IEnumerable<ITweak> QuickPreset() =>
+        All.Where(t => t.Recommended && t.Risk != RiskLevel.Advanced && t.IsApplicable);
+
+    /// <summary>Tweaks that make sense on the detected Windows version.</summary>
+    public static IEnumerable<ITweak> Applicable => All.Where(t => t.IsApplicable);
 }

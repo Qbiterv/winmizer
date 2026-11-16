@@ -12,7 +12,10 @@ public static class Ui
     {
         if (AnsiConsole.Profile.Capabilities.Interactive) AnsiConsole.Clear();
         AnsiConsole.Write(new FigletText("Winmizer").Color(Color.Aqua));
-        AnsiConsole.MarkupLine("[grey]Optymalizator Windows 11 dla graczy - bezpieczny, odwracalny, z punktem przywracania[/]");
+        AnsiConsole.MarkupLine("[grey]Optymalizator Windows 10/11 dla graczy - bezpieczny, odwracalny, z punktem przywracania[/]");
+        AnsiConsole.MarkupLine($"[grey]System:[/] [aqua]{Esc(OsInfo.Description)}[/]");
+        if (OsInfo.UnsupportedWarning is { } w)
+            AnsiConsole.MarkupLine($"[black on yellow] UWAGA [/] [yellow]{Esc(w)}[/]");
         if (Ctx.DryRun)
             AnsiConsole.MarkupLine("[black on yellow] TRYB DRY-RUN [/] [yellow]Nic nie zostanie zmienione - tylko podgląd działań.[/]");
         AnsiConsole.WriteLine();
@@ -26,6 +29,7 @@ public static class Ui
     {
         try
         {
+            if (!t.IsApplicable) return "[grey]N/D w tym systemie[/]";
             if (t.IsAction) return "[grey]akcja jednorazowa[/]";
             return t.IsApplied() ? "[green]TAK - zastosowane[/]" : "[grey]nie[/]";
         }
@@ -44,6 +48,8 @@ public static class Ui
         {
             string desc = Esc(t.Description);
             if (t.Warning != null) desc += $"\n[red]Uwaga:[/] {Esc(t.Warning)}";
+            if (t.OsNote != null) desc += $"\n[grey]{Esc(OsInfo.Name)}:[/] {Esc(t.OsNote)}";
+            if (t.SupportedOn != OsSupport.Both) desc += $"\n[grey]Dotyczy: tylko {(t.SupportedOn == OsSupport.Win11 ? "Windows 11" : "Windows 10")}[/]";
             table.AddRow(Esc(Labels.Category(t.Category)), $"[bold]{Esc(t.Name)}[/]", RiskMarkup(t.Risk), desc);
         }
         AnsiConsole.Write(table);

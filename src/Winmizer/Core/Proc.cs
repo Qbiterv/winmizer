@@ -93,7 +93,7 @@ public static class PS
         string full = "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; " +
                       "try { [Console]::OutputEncoding=[Text.Encoding]::UTF8 } catch {} ; " + script;
         string enc = Convert.ToBase64String(Encoding.Unicode.GetBytes(full));
-        var res = Proc.Run("powershell.exe",
+        var res = Proc.Run(Proc.System32(@"WindowsPowerShell\v1.0\powershell.exe"),
             new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand", enc },
             mutating: false, timeoutMs: timeoutMs, utf8: true);
         if (mutating) Ctx.Log.Info($"PS [{res.ExitCode}] {script.Split('\n')[0].Trim()}");

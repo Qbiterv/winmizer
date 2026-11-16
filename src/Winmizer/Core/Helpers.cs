@@ -120,8 +120,11 @@ public static class DnsHelper
     /// <summary>Returns (alias, comma separated IPv4 DNS) for every connected physical adapter.</summary>
     public static List<(string Alias, string Dns)> Adapters()
     {
+        // DNS is read from the adapter's registry NameServer value: it is empty when the DNS comes from DHCP
+        // (so revert resets to automatic instead of freezing the DHCP-provided addresses as static ones).
         var r = PS.Query("Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | ForEach-Object { " +
-                         "$d=(Get-DnsClientServerAddress -InterfaceIndex $_.ifIndex -AddressFamily IPv4).ServerAddresses -join ','; " +
+                         "$ns=(Get-ItemProperty -Path ('HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\' + $_.InterfaceGuid) -ErrorAction SilentlyContinue).NameServer; " +
+                         "$d=(@($ns -split '[,\\s]+' | Where-Object { $_ }) -join ','); " +
                          "\"$($_.Name)|$d\" }");
         var list = new List<(string, string)>();
         if (!r.Ok) return list;

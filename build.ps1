@@ -38,4 +38,4 @@ $exe = Join-Path $Output 'Winmizer.exe'
 if (-not (Test-Path $exe)) { throw 'Winmizer.exe was not produced.' }
 $size = [math]::Round((Get-Item $exe).Length / 1MB, 1)
 Write-Host "==> OK: $exe ($size MB)" -ForegroundColor Green
-Write-Host '    Run it as Administrator (the manifest requests elevation automatically).'
+Write-Host '    Run it as Administrator (it asks for UAC elevation itself; --list/--dry-run need no admin).'

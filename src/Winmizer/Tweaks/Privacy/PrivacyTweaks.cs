@@ -8,6 +8,23 @@ public static class PrivacyTweaks
     private const string Cdm = @"HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager";
     private const string PolWin = @"HKLM\SOFTWARE\Policies\Microsoft\Windows";
 
+    private static IEnumerable<RegSet> StartAdsEntries()
+    {
+        yield return Dw(Cdm, "SystemPaneSuggestionsEnabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-338388Enabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-338389Enabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-353694Enabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-353696Enabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-310093Enabled", 0);
+        yield return Dw(Cdm, "SubscribedContent-338393Enabled", 0);
+        // Windows 11-only Start menu keys: not written on Windows 10.
+        if (OsInfo.IsWin11)
+        {
+            yield return Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "Start_IrisRecommendations", 0);
+            yield return Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "Start_AccountNotifications", 0);
+        }
+    }
+
     public static IEnumerable<ITweak> Create()
     {
         var c = TweakCategory.Privacy;
@@ -46,15 +63,7 @@ public static class PrivacyTweaks
         yield return new RegistryTweak("privacy.startads", "Wyłącz reklamy i sugestie w Menu Start",
             "Usuwa sugerowane aplikacje/reklamy w Start i Ustawieniach oraz polecane elementy.",
             c, RiskLevel.Safe,
-            Dw(Cdm, "SystemPaneSuggestionsEnabled", 0),
-            Dw(Cdm, "SubscribedContent-338388Enabled", 0),
-            Dw(Cdm, "SubscribedContent-338389Enabled", 0),
-            Dw(Cdm, "SubscribedContent-353694Enabled", 0),
-            Dw(Cdm, "SubscribedContent-353696Enabled", 0),
-            Dw(Cdm, "SubscribedContent-310093Enabled", 0),
-            Dw(Cdm, "SubscribedContent-338393Enabled", 0),
-            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "Start_IrisRecommendations", 0),
-            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "Start_AccountNotifications", 0)) { Recommended = true };
+            () => StartAdsEntries()) { Recommended = true };
 
         yield return new RegistryTweak("privacy.lockscreen", "Wyłącz wskazówki i reklamy na ekranie blokady",
             "Ekran blokady bez \"ciekawostek\", Spotlight-reklam i wskazówek.",
@@ -73,7 +82,21 @@ public static class PrivacyTweaks
             "TurnOffWindowsCopilot=1 - ukrywa i wyłącza Copilot w systemie.",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot", "TurnOffWindowsCopilot", 1),
-            Dw(PolWin + @"\WindowsCopilot", "TurnOffWindowsCopilot", 1)) { Recommended = true };
+            Dw(PolWin + @"\WindowsCopilot", "TurnOffWindowsCopilot", 1)) { Recommended = true, SupportedOn = OsSupport.Win11 };
+
+        // ---- Windows 10 equivalents (shown only on Windows 10) ----
+        yield return new RegistryTweak("privacy.cortana.win10", "Windows 10: ogranicz Cortanę (ekran blokady, zgoda)",
+            "Cortana na Windows 10 to osobny komponent: blokuje ją na ekranie blokady (AllowCortanaAboveLock=0) i cofa zgodę użytkownika (CortanaConsent=0). Uzupełnia zasadę AllowCortana=0.",
+            c, RiskLevel.Safe,
+            Dw(PolWin + @"\Windows Search", "AllowCortanaAboveLock", 0),
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Search", "CortanaConsent", 0))
+        { Recommended = true, SupportedOn = OsSupport.Win10 };
+
+        yield return new RegistryTweak("privacy.newsfeed", "Windows 10: wyłącz \"Wiadomości i zainteresowania\" na pasku zadań",
+            "Zasada EnableFeeds=0 usuwa widżet pogody/wiadomości z paska zadań (reklamy i śledzenie MSN, zużycie RAM przez Edge WebView).",
+            c, RiskLevel.Safe,
+            Dw(PolWin + @"\Windows Feeds", "EnableFeeds", 0))
+        { Recommended = true, SupportedOn = OsSupport.Win10, MinBuild = 19041 };
 
         yield return new RegistryTweak("privacy.websearch", "Wyłącz wyszukiwanie internetowe (Bing) w Start",
             "Wyszukiwanie w Start pokazuje tylko wyniki lokalne (BingSearchEnabled=0, DisableSearchBoxSuggestions=1).",

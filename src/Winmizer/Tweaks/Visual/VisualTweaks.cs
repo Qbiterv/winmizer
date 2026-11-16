@@ -38,5 +38,26 @@ public static class VisualTweaks
             "Zasada LetAppsRunInBackground=2 - aplikacje Sklepu nie pracują w tle (oszczędza RAM/CPU). Mogą przestać przychodzić powiadomienia z takich aplikacji.",
             c, RiskLevel.Moderate,
             Dw(@"HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy", "LetAppsRunInBackground", 2));
+
+        // ---- Windows 11 only ----
+        yield return new RegistryTweak("visual.widgets", "Windows 11: wyłącz Widżety (zasada)",
+            "Zasada AllowNewsAndInterests=0 wyłącza panel Widżetów (pogoda, wiadomości, reklamy) i proces Widgets.exe działający w tle.",
+            c, RiskLevel.Safe,
+            Dw(@"HKLM\SOFTWARE\Policies\Microsoft\Dsh", "AllowNewsAndInterests", 0))
+        { SupportedOn = OsSupport.Win11 };
+
+        // ---- Windows 10 only ----
+        yield return new RegistryTweak("visual.peoplebar", "Windows 10: ukryj pasek Osoby (People)",
+            "Usuwa ikonę Osoby z paska zadań (PeopleBand=0, HidePeopleBar=1). W Windows 11 ten element nie istnieje.",
+            c, RiskLevel.Safe,
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People", "PeopleBand", 0),
+            Dw(@"HKCU\Software\Policies\Microsoft\Windows\Explorer", "HidePeopleBar", 1))
+        { Recommended = true, SupportedOn = OsSupport.Win10 };
+
+        yield return new RegistryTweak("visual.meetnow", "Windows 10: ukryj ikonę Meet Now",
+            "Ukrywa przycisk Meet Now (Skype) w zasobniku paska zadań (HideSCAMeetNow=1).",
+            c, RiskLevel.Safe,
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer", "HideSCAMeetNow", 1))
+        { Recommended = true, SupportedOn = OsSupport.Win10 };
     }
 }

@@ -54,16 +54,16 @@ public static class DebloatTweaks
     public static bool IsProtected(string pattern) =>
         Protected.Any(p => Wildcard.IsMatch(pattern, p) || Wildcard.IsMatch(p, pattern));
 
-    private sealed record App(string Pattern, string Name, string Description, bool Default, RiskLevel Risk = RiskLevel.Safe, string? Warning = null);
+    private sealed record App(string Pattern, string Name, string Description, bool Default, RiskLevel Risk = RiskLevel.Safe, string? Warning = null, OsSupport Os = OsSupport.Both);
 
     private static readonly App[] Apps =
     {
-        new("Microsoft.549981C3F5F10", "Cortana", "Stary asystent głosowy Cortana.", true),
+        new("Microsoft.549981C3F5F10", "Cortana", "Stary asystent głosowy Cortana. Na Windows 10 usuwa tylko aplikację; sam komponent systemowy ogranicza zasada w Prywatności.", true),
         new("Microsoft.BingNews", "Microsoft News (Bing News)", "Aplikacja z wiadomościami.", true),
         new("Microsoft.BingWeather", "Pogoda (Bing Weather)", "Aplikacja pogodowa MSN.", true),
         new("Microsoft.BingFinance", "Finanse (Bing Finance)", "Aplikacja finansowa MSN.", true),
         new("Microsoft.BingSports", "Sport (Bing Sports)", "Aplikacja sportowa MSN.", true),
-        new("Microsoft.BingSearch", "Bing Search (dodatek do Start)", "Integracja wyszukiwania Bing.", true),
+        new("Microsoft.BingSearch", "Bing Search (dodatek do Start)", "Integracja wyszukiwania Bing.", true, Os: OsSupport.Win11),
         new("Microsoft.GetHelp", "Uzyskaj pomoc (Get Help)", "Aplikacja pomocy technicznej.", true),
         new("Microsoft.Getstarted", "Porady (Tips)", "Aplikacja z poradami Windows.", true),
         new("Microsoft.MicrosoftOfficeHub", "Microsoft 365 (Office Hub)", "Reklamowy skrót do pakietu Office.", true),
@@ -71,15 +71,18 @@ public static class DebloatTweaks
         new("Microsoft.People", "Osoby (People)", "Książka adresowa.", true),
         new("Microsoft.WindowsFeedbackHub", "Centrum opinii (Feedback Hub)", "Wysyłanie opinii do Microsoft.", true),
         new("Microsoft.WindowsMaps", "Mapy Windows", "Aplikacja map.", true),
-        new("Clipchamp.Clipchamp", "Clipchamp", "Edytor wideo Microsoft.", true),
+        new("Clipchamp.Clipchamp", "Clipchamp", "Edytor wideo Microsoft.", true, Os: OsSupport.Win11),
         new("Microsoft.Todos", "Microsoft To Do", "Lista zadań.", true),
         new("Microsoft.PowerAutomateDesktop", "Power Automate", "Automatyzacja zadań.", true),
-        new("MicrosoftTeams", "Microsoft Teams (konsumencki)", "Wbudowany Teams (Chat).", true),
-        new("MSTeams", "Microsoft Teams (nowy)", "Nowa wersja Teams preinstalowana w systemie.", true),
-        new("Microsoft.Copilot", "Microsoft Copilot", "Aplikacja Copilot.", true),
-        new("Microsoft.Windows.Ai.Copilot.Provider", "Dostawca Windows Copilot", "Komponent Copilot.", true),
+        new("MicrosoftTeams", "Microsoft Teams (konsumencki)", "Wbudowany Teams (Chat).", true, Os: OsSupport.Win11),
+        new("MSTeams", "Microsoft Teams (nowy)", "Nowa wersja Teams preinstalowana w systemie.", true, Os: OsSupport.Win11),
+        new("Microsoft.Copilot", "Microsoft Copilot", "Aplikacja Copilot.", true, Os: OsSupport.Win11),
+        new("Microsoft.Windows.Ai.Copilot.Provider", "Dostawca Windows Copilot", "Komponent Copilot.", true, Os: OsSupport.Win11),
         new("Microsoft.SkypeApp", "Skype", "Komunikator Skype.", true),
         new("Microsoft.MixedReality.Portal", "Portal rzeczywistości mieszanej", "Dla gogli VR Windows MR.", true),
+        new("Microsoft.Microsoft3DViewer", "Przeglądarka 3D (3D Viewer)", "Windows 10: przeglądarka modeli 3D.", true, Os: OsSupport.Win10),
+        new("Microsoft.MSPaint", "Paint 3D", "Windows 10: Paint 3D (to nie jest klasyczny Paint - ten zostaje).", true, Os: OsSupport.Win10),
+        new("Microsoft.Print3D", "Print 3D", "Windows 10: aplikacja do druku 3D.", true, Os: OsSupport.Win10),
         new("*Disney*", "Disney+", "Preinstalowana aplikacja promocyjna.", true),
         new("SpotifyAB.SpotifyMusic", "Spotify", "Preinstalowana aplikacja promocyjna (możesz ją zainstalować ponownie).", true),
         new("*TikTok*", "TikTok", "Preinstalowana aplikacja promocyjna.", true),
@@ -96,7 +99,7 @@ public static class DebloatTweaks
     };
 
     public static IEnumerable<ITweak> Create() => Apps.Select(a =>
-        (ITweak)new AppxTweak(a.Pattern, a.Name, a.Description, a.Risk, a.Default, a.Warning));
+        (ITweak)new AppxTweak(a.Pattern, a.Name, a.Description, a.Risk, a.Default, a.Warning) { SupportedOn = a.Os });
 
     public static bool AnyInstalled(IEnumerable<ITweak> t) => t.Any(x => !x.IsApplied());
 }

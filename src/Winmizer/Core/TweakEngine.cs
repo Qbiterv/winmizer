@@ -109,11 +109,12 @@ public sealed class TweakEngine
     }
 
     /// <summary>Reverts everything recorded in backup.json (tweaks and disabled startup entries).</summary>
-    public IReadOnlyList<TweakResult> RevertAll(Action<string>? onStart = null, Action<TweakResult>? onDone = null)
+    public IReadOnlyList<TweakResult> RevertAll(IEnumerable<string>? only = null, Action<string>? onStart = null,
+        Action<TweakResult>? onDone = null)
     {
         var byId = TweakCatalog.All.ToDictionary(t => t.Id);
         var results = new List<TweakResult>();
-        foreach (var id in Ctx.Backup.Ids.ToList())
+        foreach (var id in (only ?? Ctx.Backup.Ids).ToList())
         {
             onStart?.Invoke(id);
             ITweak tweak = byId.TryGetValue(id, out var t) ? t : new BackupOnlyItem(id);

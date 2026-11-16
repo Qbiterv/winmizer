@@ -98,7 +98,8 @@ public static class PowerCfg
         var r = Proc.Run("powercfg.exe", new[] { ac ? "/setacvalueindex" : "/setdcvalueindex", scheme, sub, setting, value.ToString() },
             description: $"Ustawiłbym powercfg {(ac ? "AC" : "DC")} {sub}/{setting} = {value}");
         if (!r.Ok) throw new InvalidOperationException("powercfg: " + r.Text);
-        SetActive(scheme); // re-apply the scheme so the value takes effect
+        // Re-apply only if this scheme is the active one (never switch plans as a side effect of a revert).
+        if (Ctx.DryRun || Active().Guid.Equals(scheme, StringComparison.OrdinalIgnoreCase)) SetActive(scheme);
     }
 
     public static void SetActive(string scheme)

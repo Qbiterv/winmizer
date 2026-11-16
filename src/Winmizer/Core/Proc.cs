@@ -30,11 +30,9 @@ public static class Proc
             RedirectStandardError = true,
             RedirectStandardInput = true,
         };
-        if (utf8)
-        {
-            psi.StandardOutputEncoding = Encoding.UTF8;
-            psi.StandardErrorEncoding = Encoding.UTF8;
-        }
+        var enc = utf8 ? Encoding.UTF8 : OemEncoding();
+        psi.StandardOutputEncoding = enc;
+        psi.StandardErrorEncoding = enc;
         foreach (var a in argList) psi.ArgumentList.Add(a);
 
         try
@@ -62,6 +60,20 @@ public static class Proc
         {
             return new ProcResult(-1, "", ex.Message);
         }
+    }
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern uint GetOEMCP();
+
+    /// <summary>Console tools (powercfg, sc, fsutil) write in the OEM code page.</summary>
+    private static Encoding OemEncoding()
+    {
+        try
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding((int)GetOEMCP());
+        }
+        catch { return Encoding.UTF8; }
     }
 
     public static string System32(string exe) =>
@@ -94,3 +106,4 @@ public static class PS
     /// <summary>Escapes a string for use inside a single-quoted PowerShell literal.</summary>
     public static string Q(string s) => s.Replace("'", "''");
 }
+

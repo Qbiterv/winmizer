@@ -9,6 +9,7 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Winmizer");
     public static string LogDir => Path.Combine(DataDir, "logs");
     public static string BackupFile => Path.Combine(DataDir, "backup.json");
+    public static string SettingsFile => Path.Combine(DataDir, "settings.json");
     public static string DisabledStartupDir => Path.Combine(DataDir, "DisabledStartup");
 }
 

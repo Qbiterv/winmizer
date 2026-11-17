@@ -3,6 +3,8 @@
   Installs Winmizer for the current user: copies the exe matching this machine's
   architecture to %LOCALAPPDATA%\Programs\Winmizer and creates Desktop + Start Menu shortcuts.
   It only copies a file and creates shortcuts - it never runs the optimizer.
+  NOTE: the recommended way to install is the MSI from GitHub Releases (Program Files, all-users
+  shortcuts, Add/Remove Programs). This script is a per-user alternative for developers.
 .PARAMETER Uninstall
   Removes the shortcuts and the installed copy (Winmizer backups in %ProgramData% are kept).
 .PARAMETER Source
@@ -23,6 +25,11 @@ $installDir = Join-Path $env:LOCALAPPDATA 'Programs\Winmizer'
 $installExe = Join-Path $installDir 'Winmizer.exe'
 $desktopLnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Winmizer.lnk'   # handles OneDrive-redirected desktops
 $startLnk   = Join-Path ([Environment]::GetFolderPath('Programs')) 'Winmizer.lnk'  # per-user Start Menu\Programs
+
+$msiExe = Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'Winmizer\Winmizer.exe'
+if (-not $Uninstall -and (Test-Path $msiExe)) {
+    Write-Warning "Winmizer is already installed via MSI ($msiExe). Installing this per-user copy as well will create duplicate shortcuts; uninstall the MSI first or skip this script."
+}
 
 if ($Uninstall) {
     foreach ($f in $desktopLnk, $startLnk) {

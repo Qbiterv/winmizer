@@ -28,7 +28,7 @@
 
 ## Funkcje
 
-- **Szybka optymalizacja** - zalecany, bezpieczny zestaw jednym kliknięciem.
+- **Szybka optymalizacja** - zalecany, bezpieczny zestaw jednym kliknięciem, wraz z usunięciem zalecanego bloatware (Cortana, Copilot, aplikacje Bing, Teams konsumencki, aplikacje promocyjne; listę najpierw potwierdzasz).
 - **Własny wybór** - kategorie, potem pojedyncze tweaki (Bezpieczne i Umiarkowane zaznaczone domyślnie, Zaawansowane odznaczone).
 - **Gaming** - Game Mode, HAGS, MMCSS, wyłączenie przyspieszenia myszy i Game DVR.
 - **Zasilanie** - plan Ultimate Performance / Wysoka wydajność, wyłączenie USB suspend i oszczędzania PCIe.
@@ -158,7 +158,7 @@ Skrypt bez MSI: kopiuje exe pasujący do architektury komputera do `%LOCALAPPDAT
 
 Uruchom **Winmizer** ze skrótu (albo `Winmizer.exe` jako administrator). Menu główne:
 
-1. **Szybka optymalizacja** - zalecany, bezpieczny zestaw.
+1. **Szybka optymalizacja** - zalecany, bezpieczny zestaw; odinstalowuje też zalecany bloatware po potwierdzeniu listy (i proponuje restart Eksploratora, aby zmiany na pasku zadań były widoczne).
 2. **Własny wybór** - kategorie i pojedyncze tweaki.
 3. **Odśmiecanie aplikacji i autostart**.
 4. **Plany zasilania** - Winmizer Ultimate, Wysoka wydajność, powrót do Zrównoważonego.
@@ -195,7 +195,7 @@ Tryby nieinteraktywne (`--quick`, `--apply`, `--revert-all`) wymagają `--dry-ru
 
 ## Lista tweaków
 
-Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie odznaczony). Kolumna *Quick* oznacza udział w Szybkiej optymalizacji (na laptopach pomijane są ustawienia obciążające baterię). Odśmiecanie aplikacji i OneDrive nie wchodzą do trybu Quick.
+Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie odznaczony). Kolumna *Quick* oznacza udział w Szybkiej optymalizacji (na laptopach pomijane są ustawienia obciążające baterię). Quick usuwa teraz także zalecany bloatware (wiersze *Odśmiecania aplikacji* oznaczone w kolumnie Quick: Cortana, Copilot, Bing News/Pogoda, Uzyskaj pomoc, Porady, Pasjans, Centrum opinii, Clipchamp, Teams konsumencki, Power Automate, aplikacje promocyjne...). Aplikacje opcjonalne (Phone Link, Zune, Zegar i alarmy, Mapy, Xbox Game Bar) i OneDrive nie wchodzą do Quick; aplikacje chronione (Sklep, winget, Kalkulator, Zdjęcia, tożsamość Xbox...) nigdy nie są usuwane. Z `--yes` potwierdzenie jest pomijane, a Eksplorator restartuje się automatycznie, gdy tweak tego wymaga.
 
 <details>
 <summary><b>Gaming (10)</b></summary>
@@ -246,8 +246,8 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `privacy.startads` | Wyłącz reklamy i sugestie w Menu Start | Bezpieczny | tak | Usuwa sugerowane aplikacje/reklamy w Start i Ustawieniach oraz polecane elementy. |
 | `privacy.lockscreen` | Wyłącz wskazówki i reklamy na ekranie blokady | Bezpieczny | tak | Ekran blokady bez "ciekawostek", Spotlight-reklam i wskazówek. |
 | `privacy.tasks` | Wyłącz zadania telemetryczne | Bezpieczny | tak | Wyłącza harmonogramowane zadania: Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip, DmClient. Windows Update nie jest naruszony. |
-| `privacy.cortana` | Wyłącz Cortanę (zasada AllowCortana=0) | Bezpieczny | tak | Wyłącza Cortanę przez zasadę systemową. Bezpieczne - Wyszukiwanie Windows działa normalnie. |
-| `privacy.copilot` | Wyłącz Windows Copilot (zasada) | Bezpieczny | tak | TurnOffWindowsCopilot=1 - ukrywa i wyłącza Copilot w systemie. *[tylko Windows 11]* |
+| `privacy.cortana` | Wyłącz i usuń Cortanę (zasada + aplikacja) | Bezpieczny | tak | Wyłącza Cortanę zasadą AllowCortana=0 i odinstalowuje aplikację Cortana (Microsoft.549981C3F5F10). Wyszukiwanie Windows działa normalnie. Uznawane za zastosowane dopiero, gdy aplikacja zniknie. |
+| `privacy.copilot` | Wyłącz i usuń Windows Copilot (zasada, przycisk paska zadań, aplikacja) | Bezpieczny | tak | TurnOffWindowsCopilot=1 (zasada użytkownika i komputera), ShowCopilotButton=0 (przycisk paska zadań) oraz usunięcie pakietów aplikacji Copilot. Aby przycisk zniknął z paska zadań, uruchom ponownie Eksploratora. *[tylko Windows 11]* |
 | `privacy.cortana.win10` | Windows 10: ogranicz Cortanę (ekran blokady, zgoda) | Bezpieczny | tak | Cortana na Windows 10 to osobny komponent: blokuje ją na ekranie blokady (AllowCortanaAboveLock=0) i cofa zgodę użytkownika (CortanaConsent=0). Uzupełnia zasadę AllowCortana=0. *[tylko Windows 10]* |
 | `privacy.newsfeed` | Windows 10: wyłącz "Wiadomości i zainteresowania" na pasku zadań | Bezpieczny | tak | Zasada EnableFeeds=0 usuwa widżet pogody/wiadomości z paska zadań (reklamy i śledzenie MSN, zużycie RAM przez Edge WebView). *[tylko Windows 10]* |
 | `privacy.websearch` | Wyłącz wyszukiwanie internetowe (Bing) w Start | Bezpieczny | tak | Wyszukiwanie w Start pokazuje tylko wyniki lokalne (BingSearchEnabled=0, DisableSearchBoxSuggestions=1). |
@@ -327,43 +327,44 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 </details>
 
 <details>
-<summary><b>Odśmiecanie aplikacji (37)</b></summary>
+<summary><b>Odśmiecanie aplikacji (38)</b></summary>
 
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
-| `debloat.microsoft.549981c3f5f10` | Cortana | Bezpieczny |  | Stary asystent głosowy Cortana. Na Windows 10 usuwa tylko aplikację; sam komponent systemowy ogranicza zasada w Prywatności. |
-| `debloat.microsoft.bingnews` | Microsoft News (Bing News) | Bezpieczny |  | Aplikacja z wiadomościami. |
-| `debloat.microsoft.bingweather` | Pogoda (Bing Weather) | Bezpieczny |  | Aplikacja pogodowa MSN. |
-| `debloat.microsoft.bingfinance` | Finanse (Bing Finance) | Bezpieczny |  | Aplikacja finansowa MSN. |
-| `debloat.microsoft.bingsports` | Sport (Bing Sports) | Bezpieczny |  | Aplikacja sportowa MSN. |
-| `debloat.microsoft.bingsearch` | Bing Search (dodatek do Start) | Bezpieczny |  | Integracja wyszukiwania Bing. *[tylko Windows 11]* |
-| `debloat.microsoft.gethelp` | Uzyskaj pomoc (Get Help) | Bezpieczny |  | Aplikacja pomocy technicznej. |
-| `debloat.microsoft.getstarted` | Porady (Tips) | Bezpieczny |  | Aplikacja z poradami Windows. |
-| `debloat.microsoft.microsoftofficehub` | Microsoft 365 (Office Hub) | Bezpieczny |  | Reklamowy skrót do pakietu Office. |
-| `debloat.microsoft.microsoftsolitairecollection` | Microsoft Solitaire Collection | Bezpieczny |  | Gry karciane z reklamami. |
-| `debloat.microsoft.people` | Osoby (People) | Bezpieczny |  | Książka adresowa. |
-| `debloat.microsoft.windowsfeedbackhub` | Centrum opinii (Feedback Hub) | Bezpieczny |  | Wysyłanie opinii do Microsoft. |
-| `debloat.microsoft.windowsmaps` | Mapy Windows | Bezpieczny |  | Aplikacja map. |
-| `debloat.clipchamp.clipchamp` | Clipchamp | Bezpieczny |  | Edytor wideo Microsoft. *[tylko Windows 11]* |
-| `debloat.microsoft.todos` | Microsoft To Do | Bezpieczny |  | Lista zadań. |
-| `debloat.microsoft.powerautomatedesktop` | Power Automate | Bezpieczny |  | Automatyzacja zadań. |
-| `debloat.microsoftteams` | Microsoft Teams (konsumencki) | Bezpieczny |  | Wbudowany Teams (Chat). *[tylko Windows 11]* |
-| `debloat.msteams` | Microsoft Teams (nowy) | Bezpieczny |  | Nowa wersja Teams preinstalowana w systemie. *[tylko Windows 11]* |
-| `debloat.microsoft.copilot` | Microsoft Copilot | Bezpieczny |  | Aplikacja Copilot. *[tylko Windows 11]* |
-| `debloat.microsoft.windows.ai.copilot.provider` | Dostawca Windows Copilot | Bezpieczny |  | Komponent Copilot. *[tylko Windows 11]* |
-| `debloat.microsoft.skypeapp` | Skype | Bezpieczny |  | Komunikator Skype. |
-| `debloat.microsoft.mixedreality.portal` | Portal rzeczywistości mieszanej | Bezpieczny |  | Dla gogli VR Windows MR. |
-| `debloat.microsoft.microsoft3dviewer` | Przeglądarka 3D (3D Viewer) | Bezpieczny |  | Windows 10: przeglądarka modeli 3D. *[tylko Windows 10]* |
-| `debloat.microsoft.mspaint` | Paint 3D | Bezpieczny |  | Windows 10: Paint 3D (to nie jest klasyczny Paint - ten zostaje). *[tylko Windows 10]* |
-| `debloat.microsoft.print3d` | Print 3D | Bezpieczny |  | Windows 10: aplikacja do druku 3D. *[tylko Windows 10]* |
-| `debloat.disney` | Disney+ | Bezpieczny |  | Preinstalowana aplikacja promocyjna. |
-| `debloat.spotifyab.spotifymusic` | Spotify | Bezpieczny |  | Preinstalowana aplikacja promocyjna (możesz ją zainstalować ponownie). |
-| `debloat.tiktok` | TikTok | Bezpieczny |  | Preinstalowana aplikacja promocyjna. |
-| `debloat.candycrush` | Candy Crush i podobne gry | Bezpieczny |  | Promocyjne gry (Candy Crush Saga/Soda itp.). |
-| `debloat.facebook` | Facebook | Bezpieczny |  | Preinstalowana aplikacja promocyjna. |
-| `debloat.instagram` | Instagram | Bezpieczny |  | Preinstalowana aplikacja promocyjna. |
-| `debloat.twitter` | Twitter / X | Bezpieczny |  | Preinstalowana aplikacja promocyjna. |
+| `debloat.microsoft.549981c3f5f10` | Cortana | Bezpieczny | tak | Stary asystent głosowy Cortana. Na Windows 10 usuwa tylko aplikację; sam komponent systemowy ogranicza zasada w Prywatności. |
+| `debloat.microsoft.bingnews` | Microsoft News (Bing News) | Bezpieczny | tak | Aplikacja z wiadomościami. |
+| `debloat.microsoft.bingweather` | Pogoda (Bing Weather) | Bezpieczny | tak | Aplikacja pogodowa MSN. |
+| `debloat.microsoft.bingfinance` | Finanse (Bing Finance) | Bezpieczny | tak | Aplikacja finansowa MSN. |
+| `debloat.microsoft.bingsports` | Sport (Bing Sports) | Bezpieczny | tak | Aplikacja sportowa MSN. |
+| `debloat.microsoft.bingsearch` | Bing Search (dodatek do Start) | Bezpieczny | tak | Integracja wyszukiwania Bing. *[tylko Windows 11]* |
+| `debloat.microsoft.gethelp` | Uzyskaj pomoc (Get Help) | Bezpieczny | tak | Aplikacja pomocy technicznej. |
+| `debloat.microsoft.getstarted` | Porady (Tips) | Bezpieczny | tak | Aplikacja z poradami Windows. |
+| `debloat.microsoft.microsoftofficehub` | Microsoft 365 (Office Hub) | Bezpieczny | tak | Reklamowy skrót do pakietu Office. |
+| `debloat.microsoft.microsoftsolitairecollection` | Microsoft Solitaire Collection | Bezpieczny | tak | Gry karciane z reklamami. |
+| `debloat.microsoft.people` | Osoby (People) | Bezpieczny | tak | Książka adresowa. |
+| `debloat.microsoft.windowsfeedbackhub` | Centrum opinii (Feedback Hub) | Bezpieczny | tak | Wysyłanie opinii do Microsoft. |
+| `debloat.microsoft.windowsmaps` | Mapy Windows | Umiarkowany |  | Aplikacja map. |
+| `debloat.clipchamp.clipchamp` | Clipchamp | Bezpieczny | tak | Edytor wideo Microsoft. *[tylko Windows 11]* |
+| `debloat.microsoft.todos` | Microsoft To Do | Bezpieczny | tak | Lista zadań. |
+| `debloat.microsoft.powerautomatedesktop` | Power Automate | Bezpieczny | tak | Automatyzacja zadań. |
+| `debloat.microsoftteams` | Microsoft Teams (konsumencki) | Bezpieczny | tak | Wbudowany Teams (Chat). *[tylko Windows 11]* |
+| `debloat.msteams` | Microsoft Teams (nowy) | Bezpieczny | tak | Nowa wersja Teams preinstalowana w systemie. *[tylko Windows 11]* |
+| `debloat.microsoft.copilot` | Microsoft Copilot | Bezpieczny | tak | Aplikacja Copilot. *[tylko Windows 11]* |
+| `debloat.microsoft.windows.ai.copilot.provider` | Dostawca Windows Copilot | Bezpieczny | tak | Komponent Copilot. *[tylko Windows 11]* |
+| `debloat.microsoftwindows.client.copilot` | Windows Copilot (pakiet systemowy) | Bezpieczny | tak | Pakiet Copilot w Windows 11 (przycisk paska zadań / panel boczny). *[tylko Windows 11]* |
+| `debloat.microsoft.skypeapp` | Skype | Bezpieczny | tak | Komunikator Skype. |
+| `debloat.microsoft.mixedreality.portal` | Portal rzeczywistości mieszanej | Bezpieczny | tak | Dla gogli VR Windows MR. |
+| `debloat.microsoft.microsoft3dviewer` | Przeglądarka 3D (3D Viewer) | Bezpieczny | tak | Windows 10: przeglądarka modeli 3D. *[tylko Windows 10]* |
+| `debloat.microsoft.mspaint` | Paint 3D | Bezpieczny | tak | Windows 10: Paint 3D (to nie jest klasyczny Paint - ten zostaje). *[tylko Windows 10]* |
+| `debloat.microsoft.print3d` | Print 3D | Bezpieczny | tak | Windows 10: aplikacja do druku 3D. *[tylko Windows 10]* |
+| `debloat.disney` | Disney+ | Bezpieczny | tak | Preinstalowana aplikacja promocyjna. |
+| `debloat.spotifyab.spotifymusic` | Spotify | Bezpieczny | tak | Preinstalowana aplikacja promocyjna (możesz ją zainstalować ponownie). |
+| `debloat.tiktok` | TikTok | Bezpieczny | tak | Preinstalowana aplikacja promocyjna. |
+| `debloat.candycrush` | Candy Crush i podobne gry | Bezpieczny | tak | Promocyjne gry (Candy Crush Saga/Soda itp.). |
+| `debloat.facebook` | Facebook | Bezpieczny | tak | Preinstalowana aplikacja promocyjna. |
+| `debloat.instagram` | Instagram | Bezpieczny | tak | Preinstalowana aplikacja promocyjna. |
+| `debloat.twitter` | Twitter / X | Bezpieczny | tak | Preinstalowana aplikacja promocyjna. |
 | `debloat.microsoft.zunemusic` | Odtwarzacz multimediów (Groove/ZuneMusic) | Umiarkowany |  | W Windows 11 to nowy Media Player - usuń tylko jeśli używasz innego odtwarzacza. |
 | `debloat.microsoft.zunevideo` | Filmy i TV (ZuneVideo) | Umiarkowany |  | Aplikacja do filmów. |
 | `debloat.microsoft.yourphone` | Łączność z telefonem (Phone Link) | Umiarkowany |  | Usuń, jeśli nie łączysz telefonu z Windows. |

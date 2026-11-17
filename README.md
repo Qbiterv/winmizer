@@ -28,7 +28,7 @@
 
 ## Features
 
-- **Quick optimize** - the recommended safe set in one click.
+- **Quick optimize** - the recommended safe set in one click, including removal of the recommended bloatware (Cortana, Copilot, Bing apps, consumer Teams, promo apps; you confirm the list first).
 - **Custom selection** - categories first, then individual tweaks (Safe and Moderate preselected, Advanced unchecked).
 - **Gaming** - Game Mode, HAGS, MMCSS, mouse acceleration and Game DVR turned off.
 - **Power** - Ultimate Performance / High performance plan, USB suspend and PCIe power saving turned off.
@@ -158,7 +158,7 @@ An MSI-free script: copies the exe matching your PC's architecture to `%LOCALAPP
 
 Start **Winmizer** from the shortcut (or `Winmizer.exe` as administrator). Main menu:
 
-1. **Quick optimize** - the recommended safe set.
+1. **Quick optimize** - the recommended safe set; also uninstalls the recommended bloatware after you confirm the list (and offers to restart Explorer so taskbar changes show).
 2. **Custom selection** - categories and individual tweaks.
 3. **App debloat and startup apps**.
 4. **Power plans** - Winmizer Ultimate, High performance, back to Balanced.
@@ -195,7 +195,7 @@ Non-interactive modes (`--quick`, `--apply`, `--revert-all`) require `--dry-run`
 
 ## Tweak list
 
-Risk levels: **Safe**, **Moderate**, **Advanced** (unchecked by default). The *Quick* column marks tweaks included in Quick optimize (on laptops, settings that drain the battery are skipped). App debloat and OneDrive are not part of Quick mode.
+Risk levels: **Safe**, **Moderate**, **Advanced** (unchecked by default). The *Quick* column marks tweaks included in Quick optimize (on laptops, settings that drain the battery are skipped). Quick now also removes the recommended bloatware (the *App debloat* rows marked in the Quick column: Cortana, Copilot, Bing News/Weather, Get Help, Tips, Solitaire, Feedback Hub, Clipchamp, consumer Teams, Power Automate, promo apps...). Optional apps (Phone Link, Zune, Alarms, Maps, Xbox Game Bar) and OneDrive stay out of Quick; protected apps (Store, winget, Calculator, Photos, Xbox identity...) are never removed. With `--yes` the confirmation is skipped and Explorer is restarted automatically when a tweak needs it.
 
 <details>
 <summary><b>Gaming (10)</b></summary>
@@ -243,8 +243,8 @@ Risk levels: **Safe**, **Moderate**, **Advanced** (unchecked by default). The *Q
 | `privacy.startads` | Disable ads and suggestions in the Start menu | Safe | yes | Removes suggested apps/ads in Start and Settings, plus recommended items. |
 | `privacy.lockscreen` | Disable tips and ads on the lock screen | Safe | yes | A lock screen without fun facts, Spotlight ads and tips. |
 | `privacy.tasks` | Disable telemetry tasks | Safe | yes | Disables the scheduled tasks Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip and DmClient. Windows Update is not affected. |
-| `privacy.cortana` | Disable Cortana (AllowCortana=0 policy) | Safe | yes | Turns Cortana off via system policy. Safe - Windows Search keeps working normally. |
-| `privacy.copilot` | Disable Windows Copilot (policy) | Safe | yes | TurnOffWindowsCopilot=1 - hides and disables Copilot in the system. *[Windows 11 only]* |
+| `privacy.cortana` | Disable and remove Cortana (policy + app) | Safe | yes | Turns Cortana off via the AllowCortana=0 policy and uninstalls the Cortana app (Microsoft.549981C3F5F10). Windows Search keeps working normally. Counts as applied only when the app is gone too. |
+| `privacy.copilot` | Disable and remove Windows Copilot (policy, taskbar button, app) | Safe | yes | TurnOffWindowsCopilot=1 (user and machine policy), ShowCopilotButton=0 (taskbar button) and removal of the Copilot app packages. Restart Explorer for the taskbar button to disappear. *[Windows 11 only]* |
 | `privacy.cortana.win10` | Windows 10: restrict Cortana (lock screen, consent) | Safe | yes | On Windows 10 Cortana is a separate component: this blocks it on the lock screen (AllowCortanaAboveLock=0) and withdraws user consent (CortanaConsent=0). Complements the AllowCortana=0 policy. *[Windows 10 only]* |
 | `privacy.newsfeed` | Windows 10: disable "News and interests" on the taskbar | Safe | yes | The EnableFeeds=0 policy removes the weather/news widget from the taskbar (MSN ads and tracking, RAM used by Edge WebView). *[Windows 10 only]* |
 | `privacy.websearch` | Disable web search (Bing) in Start | Safe | yes | Search in Start shows local results only (BingSearchEnabled=0, DisableSearchBoxSuggestions=1). |
@@ -319,42 +319,43 @@ Risk levels: **Safe**, **Moderate**, **Advanced** (unchecked by default). The *Q
 </details>
 
 <details>
-<summary><b>App debloat (37)</b></summary>
+<summary><b>App debloat (38)</b></summary>
 
 | ID | Tweak | Risk | Quick | Description |
 |----|-------|--------|:-----:|------|
-| `debloat.microsoft.549981c3f5f10` | Cortana | Safe |  | The old Cortana voice assistant. On Windows 10 this removes only the app; the system component is limited by a Privacy policy. |
-| `debloat.microsoft.bingnews` | Microsoft News (Bing News) | Safe |  | News app. |
-| `debloat.microsoft.bingweather` | Weather (Bing Weather) | Safe |  | MSN weather app. |
-| `debloat.microsoft.bingfinance` | Finance (Bing Finance) | Safe |  | MSN finance app. |
-| `debloat.microsoft.bingsports` | Sports (Bing Sports) | Safe |  | MSN sports app. |
-| `debloat.microsoft.bingsearch` | Bing Search (Start add-on) | Safe |  | Bing search integration. *[Windows 11 only]* |
-| `debloat.microsoft.gethelp` | Get Help | Safe |  | Support app. |
-| `debloat.microsoft.getstarted` | Tips | Safe |  | Windows tips app. |
-| `debloat.microsoft.microsoftofficehub` | Microsoft 365 (Office Hub) | Safe |  | Advertising shortcut to the Office suite. |
-| `debloat.microsoft.microsoftsolitairecollection` | Microsoft Solitaire Collection | Safe |  | Card games with ads. |
-| `debloat.microsoft.people` | People | Safe |  | Address book. |
-| `debloat.microsoft.windowsfeedbackhub` | Feedback Hub | Safe |  | Sends feedback to Microsoft. |
-| `debloat.microsoft.windowsmaps` | Windows Maps | Safe |  | Maps app. |
-| `debloat.clipchamp.clipchamp` | Clipchamp | Safe |  | Microsoft video editor. *[Windows 11 only]* |
-| `debloat.microsoft.todos` | Microsoft To Do | Safe |  | To-do list. |
-| `debloat.microsoft.powerautomatedesktop` | Power Automate | Safe |  | Task automation. |
-| `debloat.microsoftteams` | Microsoft Teams (consumer) | Safe |  | Built-in Teams (Chat). *[Windows 11 only]* |
-| `debloat.msteams` | Microsoft Teams (new) | Safe |  | The new Teams version preinstalled with the system. *[Windows 11 only]* |
-| `debloat.microsoft.copilot` | Microsoft Copilot | Safe |  | The Copilot app. *[Windows 11 only]* |
-| `debloat.microsoft.windows.ai.copilot.provider` | Windows Copilot provider | Safe |  | Copilot component. *[Windows 11 only]* |
-| `debloat.microsoft.skypeapp` | Skype | Safe |  | Skype messenger. |
-| `debloat.microsoft.mixedreality.portal` | Mixed Reality Portal | Safe |  | For Windows MR VR headsets. |
-| `debloat.microsoft.microsoft3dviewer` | 3D Viewer | Safe |  | Windows 10: 3D model viewer. *[Windows 10 only]* |
-| `debloat.microsoft.mspaint` | Paint 3D | Safe |  | Windows 10: Paint 3D (not the classic Paint - that one stays). *[Windows 10 only]* |
-| `debloat.microsoft.print3d` | Print 3D | Safe |  | Windows 10: 3D printing app. *[Windows 10 only]* |
-| `debloat.disney` | Disney+ | Safe |  | Preinstalled promotional app. |
-| `debloat.spotifyab.spotifymusic` | Spotify | Safe |  | Preinstalled promotional app (you can reinstall it). |
-| `debloat.tiktok` | TikTok | Safe |  | Preinstalled promotional app. |
-| `debloat.candycrush` | Candy Crush and similar games | Safe |  | Promotional games (Candy Crush Saga/Soda etc.). |
-| `debloat.facebook` | Facebook | Safe |  | Preinstalled promotional app. |
-| `debloat.instagram` | Instagram | Safe |  | Preinstalled promotional app. |
-| `debloat.twitter` | Twitter / X | Safe |  | Preinstalled promotional app. |
+| `debloat.microsoft.549981c3f5f10` | Cortana | Safe | yes | The old Cortana voice assistant. On Windows 10 this removes only the app; the system component is limited by a Privacy policy. |
+| `debloat.microsoft.bingnews` | Microsoft News (Bing News) | Safe | yes | News app. |
+| `debloat.microsoft.bingweather` | Weather (Bing Weather) | Safe | yes | MSN weather app. |
+| `debloat.microsoft.bingfinance` | Finance (Bing Finance) | Safe | yes | MSN finance app. |
+| `debloat.microsoft.bingsports` | Sports (Bing Sports) | Safe | yes | MSN sports app. |
+| `debloat.microsoft.bingsearch` | Bing Search (Start add-on) | Safe | yes | Bing search integration. *[Windows 11 only]* |
+| `debloat.microsoft.gethelp` | Get Help | Safe | yes | Support app. |
+| `debloat.microsoft.getstarted` | Tips | Safe | yes | Windows tips app. |
+| `debloat.microsoft.microsoftofficehub` | Microsoft 365 (Office Hub) | Safe | yes | Advertising shortcut to the Office suite. |
+| `debloat.microsoft.microsoftsolitairecollection` | Microsoft Solitaire Collection | Safe | yes | Card games with ads. |
+| `debloat.microsoft.people` | People | Safe | yes | Address book. |
+| `debloat.microsoft.windowsfeedbackhub` | Feedback Hub | Safe | yes | Sends feedback to Microsoft. |
+| `debloat.microsoft.windowsmaps` | Windows Maps | Moderate |  | Maps app. |
+| `debloat.clipchamp.clipchamp` | Clipchamp | Safe | yes | Microsoft video editor. *[Windows 11 only]* |
+| `debloat.microsoft.todos` | Microsoft To Do | Safe | yes | To-do list. |
+| `debloat.microsoft.powerautomatedesktop` | Power Automate | Safe | yes | Task automation. |
+| `debloat.microsoftteams` | Microsoft Teams (consumer) | Safe | yes | Built-in Teams (Chat). *[Windows 11 only]* |
+| `debloat.msteams` | Microsoft Teams (new) | Safe | yes | The new Teams version preinstalled with the system. *[Windows 11 only]* |
+| `debloat.microsoft.copilot` | Microsoft Copilot | Safe | yes | The Copilot app. *[Windows 11 only]* |
+| `debloat.microsoft.windows.ai.copilot.provider` | Windows Copilot provider | Safe | yes | Copilot component. *[Windows 11 only]* |
+| `debloat.microsoftwindows.client.copilot` | Windows Copilot (system package) | Safe | yes | The Copilot package of Windows 11 (taskbar button / sidebar). *[Windows 11 only]* |
+| `debloat.microsoft.skypeapp` | Skype | Safe | yes | Skype messenger. |
+| `debloat.microsoft.mixedreality.portal` | Mixed Reality Portal | Safe | yes | For Windows MR VR headsets. |
+| `debloat.microsoft.microsoft3dviewer` | 3D Viewer | Safe | yes | Windows 10: 3D model viewer. *[Windows 10 only]* |
+| `debloat.microsoft.mspaint` | Paint 3D | Safe | yes | Windows 10: Paint 3D (not the classic Paint - that one stays). *[Windows 10 only]* |
+| `debloat.microsoft.print3d` | Print 3D | Safe | yes | Windows 10: 3D printing app. *[Windows 10 only]* |
+| `debloat.disney` | Disney+ | Safe | yes | Preinstalled promotional app. |
+| `debloat.spotifyab.spotifymusic` | Spotify | Safe | yes | Preinstalled promotional app (you can reinstall it). |
+| `debloat.tiktok` | TikTok | Safe | yes | Preinstalled promotional app. |
+| `debloat.candycrush` | Candy Crush and similar games | Safe | yes | Promotional games (Candy Crush Saga/Soda etc.). |
+| `debloat.facebook` | Facebook | Safe | yes | Preinstalled promotional app. |
+| `debloat.instagram` | Instagram | Safe | yes | Preinstalled promotional app. |
+| `debloat.twitter` | Twitter / X | Safe | yes | Preinstalled promotional app. |
 | `debloat.microsoft.zunemusic` | Media Player (Groove/ZuneMusic) | Moderate |  | On Windows 11 this is the new Media Player - remove it only if you use another player. |
 | `debloat.microsoft.zunevideo` | Movies & TV (ZuneVideo) | Moderate |  | Movie app. |
 | `debloat.microsoft.yourphone` | Phone Link | Moderate |  | Remove it if you don't connect your phone to Windows. |

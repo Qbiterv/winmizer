@@ -1,151 +1,180 @@
+<div align="center">
+
+<img src="docs/icon.png" alt="Winmizer" width="128" height="128">
+
 # Winmizer
 
-**Winmizer** to konsolowy optymalizator Windows 10/11 dla graczy (priorytet: Windows 11). Kolorowy interfejs (Spectre.Console), każdy tweak ma opis i poziom ryzyka, przed zmianami powstaje punkt przywracania systemu, a oryginalne wartości są zapisywane, więc wszystko można cofnąć.
+**Konsolowy optymalizator Windows 10/11 dla graczy: bezpieczny, w pełni odwracalny i po polsku.**
 
-> Interfejs jest po polsku, kod i komentarze po angielsku. Program wymaga Windows 10 1809 (build 17763) lub nowszego (x64, ARM64 albo x86) oraz uprawnień administratora do zmian w systemie.
+[![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#zgodność-z-windows-10-i-11)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![Licencja: MIT](https://img.shields.io/badge/licencja-MIT-green.svg)](LICENSE)
+[![Najnowsze wydanie](https://img.shields.io/github/v/release/Qbiterv/winmizer?label=wydanie&color=cyan)](https://github.com/Qbiterv/winmizer/releases/latest)
+
+[**Pobierz najnowsze wydanie**](https://github.com/Qbiterv/winmizer/releases/latest) · [Instalacja](#instalacja) · [Bezpieczeństwo](#bezpieczeństwo) · [FAQ](#faq)
+
+</div>
+
+---
+
+## O programie
+
+**Winmizer** to kolorowa aplikacja konsolowa (Spectre.Console), która poprawia wydajność Windows w grach i usuwa zbędny „bloat". Każdy tweak ma opis i poziom ryzyka, przed zmianami powstaje punkt przywracania systemu, a oryginalne wartości są zapisywane, więc **wszystko można cofnąć**.
+
+> Interfejs jest po polsku, kod i komentarze po angielsku. Wymagany jest Windows 10 1809 (build 17763) lub nowszy (x64, ARM64 albo x86) oraz uprawnienia administratora do zmian w systemie.
 
 ## Funkcje
 
-Menu główne:
+- **Szybka optymalizacja** - zalecany, bezpieczny zestaw jednym kliknięciem.
+- **Własny wybór** - kategorie, potem pojedyncze tweaki (Bezpieczne i Umiarkowane zaznaczone domyślnie, Zaawansowane odznaczone).
+- **Gaming** - Game Mode, HAGS, MMCSS, wyłączenie przyspieszenia myszy i Game DVR.
+- **Zasilanie** - plan Ultimate Performance / Wysoka wydajność, wyłączenie USB suspend i oszczędzania PCIe.
+- **Prywatność i telemetria** - ograniczenie telemetrii, reklam, Cortany, Copilota i wyszukiwania Bing w Start.
+- **Usługi, sieć, wygląd, dysk, czyszczenie** - ponad 40 dodatkowych ustawień (lista poniżej).
+- **Odśmiecanie aplikacji i autostartu** - usuwanie preinstalowanych aplikacji Appx oraz wyłączanie wpisów autostartu z możliwością przywrócenia.
+- **Informacje o systemie** - CPU, GPU, RAM, plan zasilania i status każdego tweaku.
+- **Cofnij / przywróć** - cofnięcie wszystkiego lub wybranych zmian z `backup.json`.
+- **Tryb CLI** - `--list`, `--dry-run`, `--quick`, `--apply`, `--revert-all` do automatyzacji.
 
-1. **Szybka optymalizacja** - zalecany, bezpieczny zestaw (kolumna *Quick* w tabelach poniżej).
-2. **Własny wybór** - wybór kategorii, potem tweaków (Bezpieczne/Umiarkowane zaznaczone domyślnie, **Zaawansowane odznaczone**).
-3. **Odśmiecanie aplikacji i autostart** - lista aplikacji Appx do usunięcia oraz wyłączanie wpisów autostartu (HKCU/HKLM Run, foldery Autostart) z możliwością przywrócenia.
-4. **Plany zasilania** - Winmizer Ultimate, Wysoka wydajność, powrót do Zrównoważonego, dodatkowe ustawienia powercfg.
-5. **Informacje o systemie / status** - CPU, GPU, RAM, plan zasilania oraz tabela, które tweaki są już zastosowane.
-6. **Cofnij / przywróć** - cofnięcie wszystkiego lub wybranych zmian z `backup.json`, skrót do Przywracania systemu.
-7. **Wyjście**.
+Po zastosowaniu zmian program pokazuje podsumowanie (zastosowano / pominięto / błędy, zwolnione miejsce) i proponuje restart.
 
-Po zastosowaniu pokazywane jest podsumowanie (zastosowano / pominięto / błędy, zwolnione miejsce) oraz propozycja restartu.
+## Bezpieczeństwo
 
-## Gwarancje bezpieczeństwa
-
-- **Punkt przywracania systemu** jest tworzony przed każdą serią zmian (włączana jest ochrona systemu na C:, a limit 24 h jest tymczasowo zdejmowany przez `SystemRestorePointCreationFrequency=0` i potem przywracany). Jeśli się nie uda, program pyta, czy kontynuować.
+- **Punkt przywracania systemu** jest tworzony przed każdą serią zmian. Włączana jest ochrona systemu na C:, a limit 24 h jest tymczasowo zdejmowany (`SystemRestorePointCreationFrequency=0`) i potem przywracany. Jeśli się nie uda, program pyta, czy kontynuować.
 - **Kopia oryginałów** każdego tweaku trafia do `%ProgramData%\Winmizer\backup.json` (wartości rejestru, typy startu usług, stany zadań, plany zasilania, DNS...). Zapisywany jest tylko *pierwszy* oryginał, więc ponowne zastosowanie nie nadpisze prawdziwego stanu.
 - **Dziennik** działań: `%ProgramData%\Winmizer\logs\winmizer-*.log`.
-- Każdy tweak działa w `try/catch` - błąd jednego nie przerywa reszty.
-- Tweaki wykrywają, czy są już zastosowane (`IsApplied`) i wtedy są pomijane.
-- **Chronione usługi** (kod odmawia ich zmiany): `Spooler`, `PrintNotify`, Windows Update (`wuauserv`, `UsoSvc`, `BITS`), Defender (`WinDefend`, `Sense`, `SecurityHealthService`), sieć/Wi-Fi/Bluetooth (`Dhcp`, `Dnscache`, `WlanSvc`, `bthserv`...), audio, Xbox/Gaming Services, Windows Hello, `TabletInputService` i inne.
-- **Chronione aplikacje** (nie da się ich dodać do listy usuwania): Microsoft Store, App Installer/winget, Kalkulator, Zdjęcia, Notatnik, Terminal, Paint, Narzędzie do wycinania, Aparat, tożsamość Xbox, Gaming Services, Xbox TCUI, SecHealthUI (Defender), rozszerzenia kodeków i biblioteki uruchomieniowe.
+- Każdy tweak działa w `try/catch` - błąd jednego nie przerywa reszty. Tweaki wykrywają, czy są już zastosowane, i wtedy są pomijane.
+- **`--dry-run`** pokazuje, co by się stało, bez żadnych zmian w systemie.
 
-### Co NIE jest ruszane
+### Czego Winmizer nigdy nie rusza
 
-- **Drukowanie** działa bez zmian: Spooler, PrintNotify, sterowniki drukarek i "Drukuj do PDF". Wyłączana jest wyłącznie usługa *Faks* (to nie jest drukowanie).
-- Sieć, Wi-Fi, Bluetooth, dźwięk, USB, sterowniki, Windows Hello.
-- **Windows Update** - wyłączamy tylko udostępnianie P2P (Delivery Optimization); aktualizacje działają normalnie.
-- **Windows Defender** pozostaje włączony.
-- **Sklep Microsoft + App Installer/winget** zostają (potrzebne do reinstalacji aplikacji).
-- **Xbox**: tożsamość i Gaming Services zostają (gry z Game Pass). Opcjonalnie można usunąć tylko nakładkę Game Bar.
-- Żadnych hacków wyłączających zabezpieczenia Spectre/Meltdown, UAC ani innych niestabilnych modyfikacji.
+| Obszar | Co zostaje bez zmian |
+|--------|----------------------|
+| **Drukowanie** | Spooler, PrintNotify, sterowniki drukarek, „Drukuj do PDF" (wyłączana jest tylko usługa *Faks*) |
+| **Sieć** | Wi-Fi, Bluetooth, DHCP, DNS Client (chronione usługi; opcjonalnie tylko zmiana serwerów DNS, z kopią) |
+| **Windows Defender** | pozostaje włączony (`WinDefend`, `Sense`, `SecurityHealthService`) |
+| **Sklep Microsoft** | Store i App Installer/winget zostają (potrzebne do reinstalacji aplikacji) |
+| **Xbox** | tożsamość Xbox i Gaming Services zostają (gry z Game Pass); opcjonalnie tylko nakładka Game Bar |
+| **Windows Update** | aktualizacje działają normalnie (wyłączamy tylko udostępnianie P2P - Delivery Optimization) |
+| **Pozostałe** | dźwięk, USB, sterowniki, Windows Hello, UAC, zabezpieczenia Spectre/Meltdown |
+
+Kod **odmawia zmiany chronionych usług** i **nie pozwala dodać chronionych aplikacji** (Store, winget, Kalkulator, Zdjęcia, Notatnik, Terminal, Paint, Narzędzie do wycinania, Aparat, Xbox/Gaming Services, SecHealthUI, kodeki) do listy usuwania.
 
 ### Czego nie da się cofnąć automatycznie
 
-- **Usunięte aplikacje Appx** - przywracasz je ze sklepu Microsoft Store lub przez `winget install`. Program próbuje je ponownie zarejestrować, jeśli pliki jeszcze istnieją.
+- **Usunięte aplikacje Appx** - przywrócisz je ze Sklepu Microsoft lub przez `winget install` (program próbuje je też ponownie zarejestrować, jeśli pliki jeszcze istnieją).
 - **Akcje czyszczenia** (pliki tymczasowe, Kosz, cache) - to usunięcie danych.
-- **Deinstalacja OneDrive** jest cofana przez ponowną instalację (OneDriveSetup/winget). Pliki istniejące wyłącznie w chmurze nie są kasowane, ale lokalna synchronizacja się zatrzymuje.
-
-## Budowanie
-
-Wymagania: .NET 8 SDK (`winget install Microsoft.DotNet.SDK.8`).
-
-```powershell
-# zwykła kompilacja
-dotnet build
-
-# trzy wydania single-file (self-contained, Release): win-x64, win-arm64, win-x86
-.\build.ps1
-
-# tylko wybrany system
-.\build.ps1 -Runtime win-x64
-```
-
-`build.ps1` wykonuje `dotnet publish -c Release -r <rid> --self-contained true -p:PublishSingleFile=true` dla każdego RID i tworzy:
-
-| RID | Plik | Dla |
-|-----|------|-----|
-| `win-x64` | `publish\win-x64\Winmizer.exe` | Windows 10/11 64-bit (Intel/AMD) |
-| `win-arm64` | `publish\win-arm64\Winmizer.exe` | Windows 11 / 10 na ARM |
-| `win-x86` | `publish\win-x86\Winmizer.exe` | Windows 10 32-bit |
-
-oraz archiwa `publish\Winmizer-<wersja>-<rid>.zip` (wersja z `Winmizer.csproj`, obecnie 1.0.0).
-
-Uprawnienia: manifest ma `asInvoker`, a program sam prosi o podniesienie uprawnień (UAC) przy prawdziwych zmianach. `--list`, `--help` i `--dry-run` działają bez UAC.
-
-## Instalacja i skrót na pulpicie
-
-```powershell
-# kopiuje exe pasujący do architektury komputera i tworzy skróty (nic nie uruchamia)
-.\install.ps1
-
-# usunięcie skrótów i zainstalowanej kopii
-.\install.ps1 -Uninstall
-```
-
-`install.ps1` kopiuje `Winmizer.exe` (wersję x64/ARM64/x86 zależnie od systemu) do `%LOCALAPPDATA%\Programs\Winmizer\` - poza repozytorium, więc ponowne budowanie niczego nie psuje - i tworzy skróty z ikoną programu:
-
-- Pulpit bieżącego użytkownika: `Winmizer.lnk` (także gdy pulpit jest przekierowany do OneDrive),
-- Menu Start: `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Winmizer.lnk`.
-
-Aby zaktualizować program, uruchom `.\build.ps1`, a potem `.\install.ps1`. Skrót uruchamia program z prośbą o UAC; kopie zapasowe i dzienniki w `%ProgramData%\Winmizer` zostają po odinstalowaniu.
-
-Ikona (`src\Winmizer\Assets\winmizer.ico`) jest generowana skryptem `tools\make-icon.ps1` (System.Drawing).
+- **Deinstalacja OneDrive** - cofasz ją ponowną instalacją. Pliki istniejące tylko w chmurze nie są kasowane, ale lokalna synchronizacja się zatrzymuje.
 
 ## Zgodność z Windows 10 i 11
 
-System jest wykrywany po numerze builda (>= 22000 = Windows 11); wersja, edycja i build są widoczne na banerze i w ekranie *Informacje o systemie*.
-
-- **Windows 11** jest głównym celem - jego zachowanie jest takie samo jak wcześniej.
-- **Windows 10**: minimalna obsługiwana wersja to 1809 (build 17763). Na starszych buildach program pokazuje ostrzeżenie.
-- Każdy tweak może mieć ograniczenie systemu (`SupportedOn`: Windows 10 / Windows 11 / oba) i minimalny build. Tweaki niedostępne w danym systemie są ukrywane w menu i pomijane w trybie wsadowym, a w `--list` oraz w podsumowaniu mają status **N/D w tym systemie** - nigdy nie kończą się błędem.
+System jest wykrywany po numerze builda (>= 22000 = Windows 11); wersja, edycja i build widnieją na banerze. Tweaki niedostępne w danym systemie są ukrywane w menu, pomijane w trybie wsadowym i oznaczane w `--list` jako **N/D w tym systemie** - nigdy nie kończą się błędem.
 
 | Tweak | Windows 11 | Windows 10 |
-|-------|-----------|------------|
-| Zasada Copilot (`privacy.copilot`), Widżety (`visual.widgets`) | tak | N/D |
-| Appx: Clipchamp, Teams (nowy `MSTeams` i `MicrosoftTeams`), Copilot, Bing Search | tak | N/D |
-| Klucze Start `Start_IrisRecommendations` / `Start_AccountNotifications` (w `privacy.startads`) | zapisywane | pomijane |
-| Cortana: ekran blokady/zgoda (`privacy.cortana.win10`) | N/D | tak |
-| Wiadomości i zainteresowania (`privacy.newsfeed`, zasada `EnableFeeds=0`, build 19041+) | N/D | tak |
-| Pasek Osoby (`visual.peoplebar`), Meet Now (`visual.meetnow`) | N/D | tak |
+|-------|:----------:|:----------:|
+| Zasada Copilot, Widżety (`privacy.copilot`, `visual.widgets`) | tak | N/D |
+| Appx: Clipchamp, Teams, Copilot, Bing Search | tak | N/D |
+| Cortana: ekran blokady i zgoda (`privacy.cortana.win10`) | N/D | tak |
+| Wiadomości i zainteresowania (`privacy.newsfeed`, build 19041+) | N/D | tak |
+| Pasek Osoby, Meet Now (`visual.peoplebar`, `visual.meetnow`) | N/D | tak |
 | Appx: Przeglądarka 3D, Paint 3D, Print 3D | N/D | tak |
-| HAGS (`gaming.hags`) | tak (wymaga GPU WDDM 2.7+) | od 2004 (build 19041) i GPU WDDM 2.7+ |
-| Optymalizacje okienkowe / VRR (`gaming.vrr`) | tak | od 1903 (build 18362), wsparcie częściowe |
+| HAGS (`gaming.hags`) | tak (GPU WDDM 2.7+) | od 2004 (19041) i GPU WDDM 2.7+ |
+| Optymalizacje okienkowe / VRR (`gaming.vrr`) | tak | od 1903 (18362), częściowo |
+| Plany zasilania, usługi, sieć, czyszczenie | tak | tak |
 
-Zasada `AllowCortana=0`, plany zasilania, usługi, sieć i czyszczenie działają na obu systemach.
-## Parametry wiersza poleceń
+## Instalacja
+
+### Zalecana: instalator MSI
+
+1. Wejdź na stronę [**Releases**](https://github.com/Qbiterv/winmizer/releases/latest) i pobierz plik MSI pasujący do komputera:
+   - `Winmizer-1.0.0-x64.msi` - Windows 10/11 64-bit (Intel/AMD, najczęstszy wybór),
+   - `Winmizer-1.0.0-arm64.msi` - Windows na ARM,
+   - `Winmizer-1.0.0-x86.msi` - Windows 10 32-bit.
+2. Uruchom pobrany plik i przejdź przez instalator.
+3. Winmizer instaluje się w `C:\Program Files\Winmizer` i tworzy skróty **na pulpicie** oraz w **Menu Start** z ikoną programu. Skrót prosi o uprawnienia administratora (UAC).
+
+Instalator pojawia się w *Aplikacje i funkcje* (wydawca: Qbiterv) i czysto się odinstalowuje (usuwa program i skróty; kopie zapasowe i dzienniki w `%ProgramData%\Winmizer` zostają). Kolejne wersje aktualizują zainstalowaną w miejscu.
+
+Instalacja cicha, z pominięciem skrótu na pulpicie:
+
+```powershell
+msiexec /i Winmizer-1.0.0-x64.msi /qb INSTALLDESKTOPSHORTCUT=0
+```
+
+### Wersja przenośna (zip)
+
+Pobierz `Winmizer-1.0.0-win-x64.zip` (lub `win-arm64` / `win-x86`) z Releases, rozpakuj i uruchom `Winmizer.exe`. Nic nie wymaga instalacji ani .NET (aplikacja jest samodzielna).
+
+### Budowanie ze źródeł
+
+Wymagania: [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (`winget install Microsoft.DotNet.SDK.8`). Instalatory MSI buduje WiX Toolset v4 (pakiet NuGet `WixToolset.Sdk 4.0.5`, pobierany automatycznie).
+
+```powershell
+git clone https://github.com/Qbiterv/winmizer.git
+cd winmizer
+
+dotnet build                       # zwykła kompilacja
+.\build.ps1                        # exe + zip + MSI dla x64, arm64, x86 -> publish\
+.\build.ps1 -Runtime win-x64       # tylko wybrany system
+.\build.ps1 -NoInstaller           # bez budowania MSI
+```
+
+`build.ps1` publikuje single-file self-contained Release dla każdego RID i zapisuje w `publish\`:
+
+| Plik | Dla |
+|------|-----|
+| `Winmizer-<wersja>-<arch>.msi` | instalator (x64, arm64, x86) |
+| `Winmizer-<wersja>-win-<arch>.zip` | wersja przenośna |
+| `win-<arch>\Winmizer.exe` | gotowy plik wykonywalny |
+
+### Alternatywa dla developerów: `install.ps1`
+
+Skrypt bez MSI: kopiuje exe pasujący do architektury komputera do `%LOCALAPPDATA%\Programs\Winmizer` (bez uprawnień admina) i tworzy skróty dla bieżącego użytkownika. Niczego nie uruchamia.
+
+```powershell
+.\build.ps1 -NoInstaller    # najpierw zbuduj
+.\install.ps1               # instalacja
+.\install.ps1 -Uninstall    # usunięcie skrótów i kopii
+```
+
+> Nie mieszaj obu metod: jeśli masz wersję z MSI, nie instaluj jednocześnie `install.ps1` (powstałyby dwa skróty o tej samej nazwie).
+
+## Użycie
+
+Uruchom **Winmizer** ze skrótu (albo `Winmizer.exe` jako administrator). Menu główne:
+
+1. **Szybka optymalizacja** - zalecany, bezpieczny zestaw.
+2. **Własny wybór** - kategorie i pojedyncze tweaki.
+3. **Odśmiecanie aplikacji i autostart**.
+4. **Plany zasilania** - Winmizer Ultimate, Wysoka wydajność, powrót do Zrównoważonego.
+5. **Informacje o systemie / status**.
+6. **Cofnij / przywróć** - także skrót do Przywracania systemu.
+7. **Wyjście**.
+
+### Parametry wiersza poleceń
 
 | Parametr | Działanie |
 |----------|-----------|
-| *(brak)* | interaktywne menu |
-| `--list` | lista wszystkich tweaków i wykrytego statusu, także N/D dla bieżącego systemu (nic nie zmienia, nie wymaga admina) |
-| `--dry-run` | tryb podglądu: logi "co by się stało", brak zmian w systemie, brak plików w ProgramData |
+| *(brak)* | interaktywne menu (wymaga administratora; program sam poprosi o UAC) |
+| `--list` | lista wszystkich tweaków i wykrytego statusu (nic nie zmienia, nie wymaga admina) |
+| `--list-md` | tabele tweaków w formacie Markdown |
+| `--dry-run` | menu w trybie podglądu - brak zmian w systemie |
 | `--dry-run --quick` | podgląd zestawu Szybka optymalizacja |
 | `--dry-run --apply id1,id2` / `all` | podgląd wybranych tweaków |
-| `--quick --yes` / `--apply id1,id2 --yes` | zastosuj bez pytań (wymaga admina) |
+| `--quick --yes` | zastosuj Szybką optymalizację bez pytań (wymaga admina) |
+| `--apply id1,id2 --yes` | zastosuj wybrane tweaki bez pytań |
 | `--revert-all --yes` | cofnij wszystko z `backup.json` |
-| `--list-md` | tabele tweaków w formacie Markdown |
+| `--help` | pomoc |
 
-## Architektura
-
-```
-Winmizer.sln
-build.ps1
-src/Winmizer/
-  Program.cs               punkt wejścia, parametry CLI
-  app.manifest             requireAdministrator
-  Core/                    ITweak, TweakBase, RegistryTweak, TweakEngine, RestorePoint,
-                           BackupStore (backup.json), Restorer, Reg/Proc/PS, ServiceHelper, PowerCfg, StartupManager
-  Tweaks/<Kategoria>/      Gaming, Power, Privacy, Services, Network, Visual, Storage, Cleanup, Debloat, OneDrive
-  Tweaks/TweakCatalog.cs   lista wszystkich tweaków
-  UI/                      Spectre.Console: menu i renderowanie
-```
-
-`ITweak` udostępnia `Id, Name, Description, Category, RiskLevel (Safe/Moderate/Advanced), IsApplied(), Apply(), Revert()`.
+Tryby nieinteraktywne (`--quick`, `--apply`, `--revert-all`) wymagają `--dry-run` albo `--yes`.
 
 ## Lista tweaków
 
-Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie odznaczony). Kolumna *Quick* oznacza udział w Szybkiej optymalizacji (na laptopach pomijane są ustawienia zasilania obciążające baterię). Odśmiecanie aplikacji i OneDrive nie wchodzą do trybu Quick.
+Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie odznaczony). Kolumna *Quick* oznacza udział w Szybkiej optymalizacji (na laptopach pomijane są ustawienia obciążające baterię). Odśmiecanie aplikacji i OneDrive nie wchodzą do trybu Quick.
 
-### Gaming (10)
+<details>
+<summary><b>Gaming (10)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -160,7 +189,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `gaming.stickykeys` | Wyłącz okna Sticky/Filter/Toggle Keys | Bezpieczny | tak | Wyłącza skróty uruchamiające okna dialogowe (5x Shift itd.), które potrafią zminimalizować grę. |
 | `gaming.vrr` | Optymalizacje gier w oknie + VRR | Bezpieczny | tak | Włącza SwapEffectUpgradeEnable i VRROptimizeEnable (DirectX) - mniejsze opóźnienie w grach okienkowych i zmienne odświeżanie. |
 
-### Zasilanie (7)
+</details>
+
+<details>
+<summary><b>Zasilanie (7)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -172,7 +205,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `power.faststartup` | Wyłącz szybkie uruchamianie (Fast Startup) | Umiarkowany |  | Pełne zamknięcie systemu przy "Zamknij" - czysty stan sterowników i mniej problemów po aktualizacjach. Start może być nieco wolniejszy. |
 | `power.hibernate` | Wyłącz hibernację (zwalnia miejsce) | Zaawansowany |  | powercfg -h off usuwa hiberfil.sys (kilka-kilkanaście GB). Wyłącza też Fast Startup i hibernację. **Uwaga:** Laptopy: utrata możliwości hibernacji. |
 
-### Prywatność i telemetria (13)
+</details>
+
+<details>
+<summary><b>Prywatność i telemetria (13)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -190,7 +227,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `privacy.newsfeed` | Windows 10: wyłącz "Wiadomości i zainteresowania" na pasku zadań | Bezpieczny | tak | Zasada EnableFeeds=0 usuwa widżet pogody/wiadomości z paska zadań (reklamy i śledzenie MSN, zużycie RAM przez Edge WebView). *[tylko Windows 10]* |
 | `privacy.websearch` | Wyłącz wyszukiwanie internetowe (Bing) w Start | Bezpieczny | tak | Wyszukiwanie w Start pokazuje tylko wyniki lokalne (BingSearchEnabled=0, DisableSearchBoxSuggestions=1). |
 
-### Usługi (10)
+</details>
+
+<details>
+<summary><b>Usługi (10)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -205,7 +246,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `services.lfsvc` | Usługa lokalizacji geograficznej (lfsvc) | Umiarkowany |  | Wyłącza usługę lokalizacji - aplikacje (Mapy, Pogoda) nie ustalą położenia. |
 | `services.wsearch` | Windows Search (WSearch) -> ręczny | Zaawansowany |  | Indeksowanie plików. Ręczny start = wolniejsze wyszukiwanie w Eksploratorze/Start, mniejsze obciążenie dysku. |
 
-### Sieć (3)
+</details>
+
+<details>
+<summary><b>Sieć (3)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -213,7 +258,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `network.dop2p` | Delivery Optimization: wyłącz udostępnianie P2P | Bezpieczny | tak | DODownloadMode=0 - aktualizacje pobierane tylko z serwerów Microsoft (bez wysyłania ich innym komputerom). Windows Update działa normalnie. |
 | `network.dns` | DNS Cloudflare (1.1.1.1 / 1.0.0.1) | Zaawansowany |  | Ustawia szybki publiczny DNS na aktywnych kartach sieciowych. Poprzednie ustawienia są zapamiętane. **Uwaga:** Zmienia dostawcę DNS - w sieciach firmowych/z filtrowaniem rodzicielskim może coś zablokować. |
 
-### Wygląd i interfejs (8)
+</details>
+
+<details>
+<summary><b>Wygląd i interfejs (8)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -226,14 +275,22 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `visual.peoplebar` | Windows 10: ukryj pasek Osoby (People) | Bezpieczny | tak | Usuwa ikonę Osoby z paska zadań (PeopleBand=0, HidePeopleBar=1). W Windows 11 ten element nie istnieje. *[tylko Windows 10]* |
 | `visual.meetnow` | Windows 10: ukryj ikonę Meet Now | Bezpieczny | tak | Ukrywa przycisk Meet Now (Skype) w zasobniku paska zadań (HideSCAMeetNow=1). *[tylko Windows 10]* |
 
-### Dysk (2)
+</details>
+
+<details>
+<summary><b>Dysk (2)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
 | `storage.trim` | Upewnij się, że TRIM jest włączony | Bezpieczny | tak | fsutil behavior set DisableDeleteNotify 0 - system informuje SSD o zwolnionych blokach (wydajność i żywotność). |
 | `storage.lastaccess` | Wyłącz znacznik ostatniego dostępu NTFS | Bezpieczny | tak | fsutil behavior set disablelastaccess 1 - mniej zapisów na dysk przy każdym odczycie pliku. |
 
-### Czyszczenie (4)
+</details>
+
+<details>
+<summary><b>Czyszczenie (4)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -242,7 +299,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `cleanup.recyclebin` | Opróżnij Kosz | Umiarkowany |  | Trwale usuwa wszystko z Kosza. **Uwaga:** Operacja nieodwracalna - sprawdź zawartość Kosza. |
 | `cleanup.dism` | DISM: czyszczenie składników (StartComponentCleanup) | Zaawansowany |  | DISM /Online /Cleanup-Image /StartComponentCleanup - usuwa stare wersje składników systemu. Bezpieczne, ale trwa kilka-kilkanaście minut. |
 
-### Odśmiecanie aplikacji (37)
+</details>
+
+<details>
+<summary><b>Odśmiecanie aplikacji (37)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -284,7 +345,11 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `debloat.microsoft.windowsalarms` | Zegar i alarmy | Umiarkowany |  | Alarmy, minutniki, stoper. |
 | `debloat.microsoft.xboxgamingoverlay` | Xbox Game Bar (nakładka) | Umiarkowany |  | Nakładka Win+G. Tożsamość Xbox i Gaming Services zostają (potrzebne grom z Game Pass). **Uwaga:** Gry z Game Pass nadal działają, ale stracisz nakładkę Win+G. |
 
-### OneDrive (4)
+</details>
+
+<details>
+<summary><b>OneDrive (4)</b></summary>
+
 
 | ID | Tweak | Ryzyko | Quick | Opis |
 |----|-------|--------|:-----:|------|
@@ -292,14 +357,79 @@ Poziomy ryzyka: **Bezpieczny**, **Umiarkowany**, **Zaawansowany** (domyślnie od
 | `onedrive.navpane` | OneDrive: usuń z panelu nawigacji Eksploratora | Bezpieczny |  | Ukrywa ikonę OneDrive w lewym panelu Eksploratora plików. |
 | `onedrive.startup` | OneDrive: usuń z autostartu | Bezpieczny |  | Usuwa wpisy Run uruchamiające OneDrive przy logowaniu (kopia zapasowa pozwala je przywrócić). |
 | `onedrive.uninstall` | OneDrive: pełna deinstalacja | Umiarkowany |  | Zamyka proces OneDrive i uruchamia oficjalny deinstalator (OneDriveSetup.exe /uninstall, awaryjnie winget). **Uwaga:** Lokalna synchronizacja przestanie działać. Pliki istniejące WYŁĄCZNIE w chmurze nie są kasowane, ale stają się niedostępne z tego komputera do czasu ponownej instalacji. Najpierw upewnij się, że pliki są pobrane lokalnie. |
+</details>
 
 ## Autostart
 
 Wpisy rejestru (`HKCU/HKLM ...\Run`, także 32-bit) są przenoszone do `HKxx\SOFTWARE\Winmizer\DisabledStartup\...`, a skróty z folderów Autostart do `%ProgramData%\Winmizer\DisabledStartup`. Oryginały zapisuje `backup.json`, więc *Cofnij / przywróć* przywraca je na miejsce.
+
+## FAQ
+
+<details>
+<summary><b>Jak cofnąć zmiany?</b></summary>
+
+Uruchom Winmizer i wybierz **Cofnij / przywróć** (wszystko lub wybrane zmiany z `backup.json`), albo w wierszu poleceń: `Winmizer.exe --revert-all --yes`. Awaryjnie użyj punktu przywracania utworzonego przed zmianami (*Przywracanie systemu* w Windows).
+</details>
+
+<details>
+<summary><b>SmartScreen ostrzega przed nieznanym wydawcą. Czy to bezpieczne?</b></summary>
+
+Plik `Winmizer.exe` oraz MSI nie są podpisane certyfikatem (to koszt, na który projekt open source zwykle sobie nie pozwala), więc Windows SmartScreen może pokazać „Windows chronił ten komputer". Kliknij **Więcej informacji**, a potem **Uruchom mimo to**. Kod źródłowy jest w tym repozytorium i możesz zbudować program samodzielnie (`build.ps1`).
+</details>
+
+<details>
+<summary><b>Usunąłem aplikację przez Winmizer. Jak ją przywrócić?</b></summary>
+
+Zainstaluj ją ponownie ze **Sklepu Microsoft** albo poleceniem `winget install <nazwa>`. Sklep i winget nigdy nie są usuwane.
+</details>
+
+<details>
+<summary><b>Czy Winmizer wyłącza Windows Defender, Windows Update albo drukowanie?</b></summary>
+
+Nie. Defender, Windows Update (poza udostępnianiem P2P), drukarki, sieć i usługi Xbox są chronione i kod odmawia ich zmiany.
+</details>
+
+<details>
+<summary><b>Dlaczego program prosi o uprawnienia administratora?</b></summary>
+
+Zmiany w rejestrze (HKLM), usługach, planach zasilania i punkt przywracania wymagają admina. Tryby `--list` i `--dry-run` działają bez UAC.
+</details>
+
+<details>
+<summary><b>Czy to zwiększy FPS?</b></summary>
+
+Zależy od sprzętu. Efekty (HAGS, Nagle, priorytety) bywają niewielkie; największą różnicę zwykle widać w responsywności systemu, mniejszej liczbie procesów w tle i stabilniejszych klatkach. Wszystko jest odwracalne, więc możesz po prostu sprawdzić.
+</details>
 
 ## Znane ograniczenia
 
 - Wykrywanie aplikacji Appx bez uprawnień administratora (np. `--list`) obejmuje tylko bieżącego użytkownika.
 - Plan Ultimate Performance bywa niedostępny w niektórych konfiguracjach - wtedy użyj planu Wysoka wydajność.
 - HAGS, Nagle i inne ustawienia sprzętowe mają różny wpływ zależnie od sprzętu; wszystkie są odwracalne.
-- Program nie był uruchamiany w trybie zmieniającym system podczas tworzenia (tylko `--list`/`--dry-run`).
+
+## Architektura
+
+```
+Winmizer.sln
+build.ps1                  publish exe + zip + MSI
+install.ps1                instalacja per-user (alternatywa dla MSI)
+installer/                 WiX v4: Winmizer.Installer.wixproj, Package.wxs
+tools/make-icon.ps1        generator ikony
+src/Winmizer/
+  Program.cs               punkt wejścia, parametry CLI
+  Core/                    TweakBase, TweakEngine, BackupStore (backup.json), Restorer,
+                           Reg/Proc, StartupManager
+  Tweaks/<Kategoria>/      Gaming, Power, Privacy, Services, Network, Visual, Storage, Cleanup, Debloat, OneDrive
+  Tweaks/TweakCatalog.cs   lista wszystkich tweaków
+  UI/                      Spectre.Console: menu i renderowanie
+```
+
+Ikona (`src/Winmizer/Assets/winmizer.ico`, podgląd `docs/icon.png`) jest generowana skryptem `tools/make-icon.ps1`.
+
+## Zastrzeżenie
+
+Winmizer zmienia ustawienia systemu. Choć tworzy punkt przywracania i kopię oryginałów, oprogramowanie jest udostępniane **„tak jak jest"**, bez jakiejkolwiek gwarancji; używasz go na własną odpowiedzialność. Nie jest produktem ani nie jest powiązany z Microsoft. Zalecamy wykonanie własnej kopii ważnych danych przed użyciem.
+
+## Licencja
+
+[MIT](LICENSE) © 2026 Qbiterv

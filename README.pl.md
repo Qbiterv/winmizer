@@ -4,7 +4,9 @@
 
 # Winmizer
 
-**Konsolowy optymalizator Windows 10/11 dla graczy: bezpieczny, w pełni odwracalny i po polsku.**
+[English](README.md) | **Polski**
+
+**Konsolowy optymalizator Windows 10/11 dla graczy: bezpieczny, w pełni odwracalny, po angielsku i po polsku.**
 
 [![CI](https://github.com/Qbiterv/winmizer/actions/workflows/ci.yml/badge.svg)](https://github.com/Qbiterv/winmizer/actions/workflows/ci.yml)
 [![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#zgodność-z-windows-10-i-11)
@@ -22,7 +24,7 @@
 
 **Winmizer** to kolorowa aplikacja konsolowa (Spectre.Console), która poprawia wydajność Windows w grach i usuwa zbędny „bloat". Każdy tweak ma opis i poziom ryzyka, przed zmianami powstaje punkt przywracania systemu, a oryginalne wartości są zapisywane, więc **wszystko można cofnąć**.
 
-> Interfejs jest po polsku, kod i komentarze po angielsku. Wymagany jest Windows 10 1809 (build 17763) lub nowszy (x64, ARM64 albo x86) oraz uprawnienia administratora do zmian w systemie.
+> Interfejs jest domyślnie po angielsku i dostępny także po polsku (zobacz [Język](#język)); kod i komentarze są po angielsku. Wymagany jest Windows 10 1809 (build 17763) lub nowszy (x64, ARM64 albo x86) oraz uprawnienia administratora do zmian w systemie.
 
 ## Funkcje
 
@@ -36,6 +38,7 @@
 - **Informacje o systemie** - CPU, GPU, RAM, plan zasilania i status każdego tweaku.
 - **Cofnij / przywróć** - cofnięcie wszystkiego lub wybranych zmian z `backup.json`.
 - **Tryb CLI** - `--list`, `--dry-run`, `--quick`, `--apply`, `--revert-all` do automatyzacji.
+- **Angielski i polski** - domyślnie angielski; przełączasz parametrem `--lang` lub w menu.
 
 Po zastosowaniu zmian program pokazuje podsumowanie (zastosowano / pominięto / błędy, zwolnione miejsce) i proponuje restart.
 
@@ -161,7 +164,16 @@ Uruchom **Winmizer** ze skrótu (albo `Winmizer.exe` jako administrator). Menu g
 4. **Plany zasilania** - Winmizer Ultimate, Wysoka wydajność, powrót do Zrównoważonego.
 5. **Informacje o systemie / status**.
 6. **Cofnij / przywróć** - także skrót do Przywracania systemu.
-7. **Wyjście**.
+7. **Language / Język** - przełączenie między angielskim a polskim.
+8. **Wyjście**.
+
+### Język
+
+Domyślnie program działa po angielsku i nigdy nie zmienia języka na podstawie ustawień systemu. Polski włączysz na trzy sposoby, sprawdzane w tej kolejności:
+
+1. parametr `--lang pl` (lub `--lang en`) - dla jednego uruchomienia,
+2. zmienna środowiskowa `WINMIZER_LANG` (`pl` lub `en`),
+3. wybór zapisany pozycją **Language / Język** w menu, w pliku `%ProgramData%\Winmizer\settings.json` (brakujący lub uszkodzony plik jest ignorowany; `--dry-run` nigdy go nie zapisuje).
 
 ### Parametry wiersza poleceń
 
@@ -176,6 +188,7 @@ Uruchom **Winmizer** ze skrótu (albo `Winmizer.exe` jako administrator). Menu g
 | `--quick --yes` | zastosuj Szybką optymalizację bez pytań (wymaga admina) |
 | `--apply id1,id2 --yes` | zastosuj wybrane tweaki bez pytań |
 | `--revert-all --yes` | cofnij wszystko z `backup.json` |
+| `--lang en` / `--lang pl` | język interfejsu dla tego uruchomienia (domyślnie angielski) |
 | `--help` | pomoc |
 
 Tryby nieinteraktywne (`--quick`, `--apply`, `--revert-all`) wymagają `--dry-run` albo `--yes`.
@@ -378,6 +391,12 @@ Wpisy rejestru (`HKCU/HKLM ...\Run`, także 32-bit) są przenoszone do `HKxx\SOF
 ## FAQ
 
 <details>
+<summary><b>Jak zmienić język?</b></summary>
+
+Wybierz **Language / Język** w menu głównym (wybór jest zapamiętywany) albo uruchom `Winmizer.exe --lang pl` na jedną sesję. Domyślnym językiem jest angielski.
+</details>
+
+<details>
 <summary><b>Jak cofnąć zmiany?</b></summary>
 
 Uruchom Winmizer i wybierz **Cofnij / przywróć** (wszystko lub wybrane zmiany z `backup.json`), albo w wierszu poleceń: `Winmizer.exe --revert-all --yes`. Awaryjnie użyj punktu przywracania utworzonego przed zmianami (*Przywracanie systemu* w Windows).
@@ -431,10 +450,13 @@ src/Winmizer/
   Program.cs               punkt wejścia, parametry CLI
   Core/                    TweakBase, TweakEngine, BackupStore (backup.json), Restorer,
                            Reg/Proc, StartupManager
+  Core/Localization/       L (wyszukiwanie po angielskim kluczu), PolishStrings, settings.json
   Tweaks/<Kategoria>/      Gaming, Power, Privacy, Services, Network, Visual, Storage, Cleanup, Debloat, OneDrive
   Tweaks/TweakCatalog.cs   lista wszystkich tweaków
   UI/                      Spectre.Console: menu i renderowanie
 ```
+
+Teksty są w kodzie po angielsku i pełnią rolę kluczy; tłumaczenia na polski są w `PolishStrings.cs`. `Winmizer.exe --lang-check` wypisuje teksty tweaków bez tłumaczenia.
 
 Ikona (`src/Winmizer/Assets/winmizer.ico`, podgląd `docs/icon.png`) jest generowana skryptem `tools/make-icon.ps1`.
 

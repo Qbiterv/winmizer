@@ -8,16 +8,21 @@
   .\build.ps1
   .\build.ps1 -NoInstaller
   .\build.ps1 -Runtime win-x64
+  .\build.ps1 -Version 1.0.1
   .\build.ps1 -Output C:\temp\winmizer
 #>
 param(
     [string]$Configuration = 'Release',
     [string]$Output = (Join-Path $PSScriptRoot 'publish'),
     [string[]]$Runtime = @('win-x64', 'win-arm64', 'win-x86'),
-    [switch]$NoInstaller
+    [switch]$NoInstaller,
+    # Overrides <Version> from the csproj (exe, zips, MSI ProductVersion). Format: X.Y.Z (a leading 'v' is stripped).
+    [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
+# PowerShell variables are case-insensitive: capture -Version before $version is reused below.
+$requestedVersion = $Version
 
 # Use the project-local tools if the SDK is not on PATH (non-admin install).
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
@@ -39,6 +44,11 @@ $project = Join-Path $PSScriptRoot 'src\Winmizer\Winmizer.csproj'
 # Version comes from the csproj (<Version>).
 $version = ([xml](Get-Content $project)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
 if (-not $version) { $version = '1.0.0' }
+if ($requestedVersion) {
+    $version = $requestedVersion.Trim() -replace '^[vV]', ''
+    if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Invalid -Version '$requestedVersion' (expected X.Y.Z, e.g. 1.0.1)." }
+}
+$verProps = @("-p:Version=$version", "-p:AssemblyVersion=$version.0", "-p:FileVersion=$version.0")
 
 New-Item -ItemType Directory -Force $Output | Out-Null
 $results = @()
@@ -49,7 +59,7 @@ foreach ($rid in $Runtime) {
     if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
 
     dotnet publish $project -c $Configuration -r $rid --self-contained true `
-        -p:PublishSingleFile=true -o $dir
+        -p:PublishSingleFile=true @verProps -o $dir
     if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $rid ($LASTEXITCODE)" }
 
     $exe = Join-Path $dir 'Winmizer.exe'

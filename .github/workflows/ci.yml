@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build (exe, zip, MSI for win-x64)
+        shell: pwsh
+        run: ./build.ps1 -Runtime win-x64
+
+      - name: Smoke test (--list, no admin, no console)
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD 'publish/win-x64/Winmizer.exe'
+          # Piping through Out-String makes stdout/stdin non-interactive, like a real CI run.
+          $out = & $exe --list | Out-String
+          if ($LASTEXITCODE -ne 0) { throw "Winmizer --list exited with $LASTEXITCODE" }
+          if ([string]::IsNullOrWhiteSpace($out)) { throw 'Winmizer --list produced no output' }
+          Write-Host $out
+          if ($out -notmatch 'gaming\.gamemode') { throw 'Expected tweak id gaming.gamemode not found in --list output' }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: winmizer-win-x64
+          path: |
+            publish/Winmizer-*-win-x64.zip
+            publish/Winmizer-*-x64.msi
+          if-no-files-found: error
+          retention-days: 14

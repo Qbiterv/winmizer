@@ -22,6 +22,7 @@ public static class Program
             ("Winmizer.exe --apply id1,id2 --yes", "apply selected tweaks without prompts"),
             ("Winmizer.exe --revert-all --yes", "undo everything from backup.json"),
             ("Winmizer.exe --lang en|pl", "UI language for this run (English is the default; the menu can save a choice)"),
+            ("Winmizer.exe --version", ""),
             ("Winmizer.exe --help", ""),
         };
         int w = rows.Max(r => r.Cmd.Length) + 3;
@@ -59,6 +60,7 @@ public static class Program
 
         try
         {
+            if (Has("--version") || Has("-v")) { Console.WriteLine($"Winmizer {AppInfo.Version}"); return 0; }
             if (Has("--help") || Has("-h") || Has("/?")) { Console.WriteLine(Help()); return 0; }
             if (Has("--list")) return Cli.List();
             if (Has("--list-md")) return Cli.ListMarkdown();

@@ -13,8 +13,9 @@ public static class Ui
     public static void Banner()
     {
         if (AnsiConsole.Profile.Capabilities.Interactive) AnsiConsole.Clear();
+        try { Console.Title = $"Winmizer v{AppInfo.Version}"; } catch { /* no console window */ }
         AnsiConsole.Write(new FigletText("Winmizer").Color(Color.Aqua));
-        AnsiConsole.MarkupLine("[grey]" + L.T("Windows 10/11 gaming optimizer - safe, reversible, with a restore point") + "[/]");
+        AnsiConsole.MarkupLine($"[mediumpurple1]v{Esc(AppInfo.Version)}[/]  [grey]" + L.T("Windows 10/11 gaming optimizer - safe, reversible, with a restore point") + "[/]");
         AnsiConsole.MarkupLine($"[grey]{L.T("System:")}[/] [aqua]{Esc(OsInfo.Description)}[/]");
         if (OsInfo.UnsupportedWarning is { } w)
             AnsiConsole.MarkupLine($"[black on yellow] {L.T("WARNING")} [/] [yellow]{Esc(w)}[/]");

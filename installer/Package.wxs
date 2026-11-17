@@ -6,9 +6,9 @@
            Scope="perMachine"
            Compressed="yes">
 
-    <SummaryInformation Description="Winmizer - optymalizator Windows 10/11 dla graczy" />
+    <SummaryInformation Description="Winmizer - Windows 10/11 gaming optimizer" />
 
-    <MajorUpgrade DowngradeErrorMessage="Zainstalowana jest nowsza wersja programu Winmizer." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Winmizer is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <Icon Id="WinmizerIcon.ico" SourceFile="$(IconFile)" />
@@ -39,7 +39,7 @@
     <ComponentGroup Id="StartMenuShortcuts" Directory="ProgramMenuFolder">
       <Component Id="StartMenuShortcut" Guid="B2E4A6C8-1D3F-4B5A-8C7E-9F0A1B2C3D4E">
         <Shortcut Id="StartMenuShortcut" Name="Winmizer"
-                  Description="Winmizer - optymalizator Windows 10/11 dla graczy"
+                  Description="Winmizer - Windows 10/11 gaming optimizer"
                   Target="[INSTALLFOLDER]Winmizer.exe" WorkingDirectory="INSTALLFOLDER"
                   Icon="WinmizerIcon.ico" />
         <RegistryValue Root="HKLM" Key="Software\Qbiterv\Winmizer" Name="StartMenuShortcut"
@@ -51,7 +51,7 @@
       <Component Id="DesktopShortcut" Guid="C3F5B7D9-2E4A-4C6B-9D8F-0A1B2C3D4E5F"
                  Condition="INSTALLDESKTOPSHORTCUT = &quot;1&quot;">
         <Shortcut Id="DesktopShortcut" Name="Winmizer"
-                  Description="Winmizer - optymalizator Windows 10/11 dla graczy"
+                  Description="Winmizer - Windows 10/11 gaming optimizer"
                   Target="[INSTALLFOLDER]Winmizer.exe" WorkingDirectory="INSTALLFOLDER"
                   Icon="WinmizerIcon.ico" />
         <RegistryValue Root="HKLM" Key="Software\Qbiterv\Winmizer" Name="DesktopShortcut"

@@ -19,7 +19,7 @@ public static class NetworkTweaks
             {
                 Dw($@"{Interfaces}\{g}", "TcpAckFrequency", 1),
                 Dw($@"{Interfaces}\{g}", "TCPNoDelay", 1)
-            }));
+            })) { Restart = RestartNeed.Reboot };
 
         yield return new RegistryTweak("network.dop2p", "Delivery Optimization: disable P2P sharing",
             "DODownloadMode=0 - updates are downloaded only from Microsoft servers (and not uploaded to other PCs). Windows Update works normally.",

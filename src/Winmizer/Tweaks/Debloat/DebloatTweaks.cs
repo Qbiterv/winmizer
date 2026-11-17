@@ -4,34 +4,6 @@ using Winmizer.Core.Localization;
 
 namespace Winmizer.Tweaks.Debloat;
 
-/// <summary>Cached list of installed / provisioned Appx packages (one PowerShell call).</summary>
-public static class AppxCache
-{
-    private static List<string>? _names;
-
-    public static void Invalidate() => _names = null;
-
-    public static List<string> Names()
-    {
-        if (_names != null) return _names;
-        var r = PS.Query(
-            "$n=@(); " +
-            "try { $n += Get-AppxPackage -AllUsers | Select-Object -ExpandProperty Name } catch { try { $n += Get-AppxPackage | Select-Object -ExpandProperty Name } catch {} }; " +
-            "try { $n += Get-AppxProvisionedPackage -Online | Select-Object -ExpandProperty DisplayName } catch {}; " +
-            "$n | Sort-Object -Unique", 120_000);
-        _names = r.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
-        return _names;
-    }
-
-    public static bool IsPresent(string pattern) => Names().Any(n => Wildcard.IsMatch(pattern, n));
-}
-
-internal static class Wildcard
-{
-    public static bool IsMatch(string pattern, string text) =>
-        Regex.IsMatch(text, "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$", RegexOptions.IgnoreCase);
-}
-
 public static class DebloatTweaks
 {
     // Apps that must never be removed (Store, winget, essentials, Xbox identity / gaming services, Defender UI, runtimes).
@@ -55,6 +27,9 @@ public static class DebloatTweaks
     public static bool IsProtected(string pattern) =>
         Protected.Any(p => Wildcard.IsMatch(pattern, p) || Wildcard.IsMatch(p, pattern));
 
+    /// <summary>True when a concrete package name is on the protected list.</summary>
+    public static bool IsProtectedName(string name) => Protected.Any(p => Wildcard.IsMatch(p, name));
+
     private sealed record App(string Pattern, string Name, string Description, bool Default, RiskLevel Risk = RiskLevel.Safe, string? Warning = null, OsSupport Os = OsSupport.Both);
 
     private static readonly App[] Apps =
@@ -71,7 +46,7 @@ public static class DebloatTweaks
         new("Microsoft.MicrosoftSolitaireCollection", "Microsoft Solitaire Collection", "Card games with ads.", true),
         new("Microsoft.People", "People", "Address book.", true),
         new("Microsoft.WindowsFeedbackHub", "Feedback Hub", "Sends feedback to Microsoft.", true),
-        new("Microsoft.WindowsMaps", "Windows Maps", "Maps app.", true),
+        new("Microsoft.WindowsMaps", "Windows Maps", "Maps app.", false, RiskLevel.Moderate),
         new("Clipchamp.Clipchamp", "Clipchamp", "Microsoft video editor.", true, Os: OsSupport.Win11),
         new("Microsoft.Todos", "Microsoft To Do", "To-do list.", true),
         new("Microsoft.PowerAutomateDesktop", "Power Automate", "Task automation.", true),
@@ -79,6 +54,7 @@ public static class DebloatTweaks
         new("MSTeams", "Microsoft Teams (new)", "The new Teams version preinstalled with the system.", true, Os: OsSupport.Win11),
         new("Microsoft.Copilot", "Microsoft Copilot", "The Copilot app.", true, Os: OsSupport.Win11),
         new("Microsoft.Windows.Ai.Copilot.Provider", "Windows Copilot provider", "Copilot component.", true, Os: OsSupport.Win11),
+        new("MicrosoftWindows.Client.CoPilot", "Windows Copilot (system package)", "The Copilot package of Windows 11 (taskbar button / sidebar).", true, Os: OsSupport.Win11),
         new("Microsoft.SkypeApp", "Skype", "Skype messenger.", true),
         new("Microsoft.MixedReality.Portal", "Mixed Reality Portal", "For Windows MR VR headsets.", true),
         new("Microsoft.Microsoft3DViewer", "3D Viewer", "Windows 10: 3D model viewer.", true, Os: OsSupport.Win10),
@@ -110,6 +86,9 @@ public sealed class AppxTweak : TweakBase
 {
     private readonly string _pattern;
 
+    /// <summary>Package name (wildcards allowed) this tweak removes.</summary>
+    public string Pattern => _pattern;
+
     public AppxTweak(string pattern, string name, string description, RiskLevel risk, bool recommended, string? warning)
         : base("debloat." + Regex.Replace(pattern, "[^A-Za-z0-9.]", "").ToLowerInvariant(), name, description, TweakCategory.Debloat, risk)
     {
@@ -121,24 +100,13 @@ public sealed class AppxTweak : TweakBase
     }
 
     public override bool IsReversible => false;
-    /// <summary>Default selection in the debloat list.</summary>
+    /// <summary>Default selection in the debloat list; also puts the app in the Quick optimize preset.</summary>
     public bool DefaultSelected { get; }
+    public override bool Recommended => DefaultSelected;
 
     public override bool IsApplied() => !AppxCache.IsPresent(_pattern);
 
-    public override void Apply()
-    {
-        string p = PS.Q(_pattern);
-        string prot = string.Join(",", DebloatTweaks.ProtectedNames.Select(n => "'" + PS.Q(n) + "'"));
-        string script =
-            $"$p='{p}'; $prot=@({prot}); " +
-            "Get-AppxPackage -AllUsers -Name $p | Where-Object { $n=$_.Name; -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxPackage -Package $_.PackageFullName -AllUsers } catch { Write-Output ('WARN ' + $_.Exception.Message) } }; " +
-            "Get-AppxProvisionedPackage -Online | Where-Object { $n=$_.DisplayName; $n -like $p -and -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxProvisionedPackage -Online -PackageName $_.PackageName | Out-Null } catch { Write-Output ('WARN ' + $_.Exception.Message) } }";
-        var r = PS.Run(script, description: L.F("Would remove Appx package: {0} (Remove-AppxPackage -AllUsers + Remove-AppxProvisionedPackage)", _pattern));
-        foreach (var line in r.Out.Split('\n').Where(l => l.StartsWith("WARN"))) Ctx.Log.Warn($"{_pattern}: {line.Trim()}");
-        if (!r.Ok) throw new InvalidOperationException(r.Text);
-        AppxCache.Invalidate();
-    }
+    public override void Apply() => AppxRemover.RemoveAll(new[] { _pattern });
 
     public override void Revert()
     {

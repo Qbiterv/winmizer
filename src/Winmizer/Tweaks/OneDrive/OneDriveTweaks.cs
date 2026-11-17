@@ -23,7 +23,7 @@ public static class OneDriveTweaks
             "Hides the OneDrive icon in the left pane of File Explorer.",
             c, RiskLevel.Safe,
             Dw(NavClsid, "System.IsPinnedToNameSpaceTree", 0),
-            Dw(NavClsid32, "System.IsPinnedToNameSpaceTree", 0));
+            Dw(NavClsid32, "System.IsPinnedToNameSpaceTree", 0)) { Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("onedrive.startup", "OneDrive: remove from startup",
             "Removes the Run entries that launch OneDrive at sign-in (the backup lets you restore them).",

@@ -64,7 +64,7 @@ public static class PrivacyTweaks
         yield return new RegistryTweak("privacy.startads", "Disable ads and suggestions in the Start menu",
             "Removes suggested apps/ads in Start and Settings, plus recommended items.",
             c, RiskLevel.Safe,
-            () => StartAdsEntries()) { Recommended = true };
+            () => StartAdsEntries()) { Recommended = true, Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("privacy.lockscreen", "Disable tips and ads on the lock screen",
             "A lock screen without fun facts, Spotlight ads and tips.",
@@ -75,15 +75,21 @@ public static class PrivacyTweaks
 
         yield return new TelemetryTasksTweak();
 
-        yield return new RegistryTweak("privacy.cortana", "Disable Cortana (AllowCortana=0 policy)",
-            "Turns Cortana off via system policy. Safe - Windows Search keeps working normally.",
-            c, RiskLevel.Safe, Dw(PolWin + @"\Windows Search", "AllowCortana", 0)) { Recommended = true };
+        yield return new RegistryTweak("privacy.cortana", "Disable and remove Cortana (policy + app)",
+            "Turns Cortana off via the AllowCortana=0 policy and uninstalls the Cortana app (Microsoft.549981C3F5F10). Windows Search keeps working normally. Counts as applied only when the app is gone too.",
+            c, RiskLevel.Safe, Dw(PolWin + @"\Windows Search", "AllowCortana", 0))
+        { Recommended = true, AppxPatterns = new[] { "Microsoft.549981C3F5F10" } };
 
-        yield return new RegistryTweak("privacy.copilot", "Disable Windows Copilot (policy)",
-            "TurnOffWindowsCopilot=1 - hides and disables Copilot in the system.",
+        yield return new RegistryTweak("privacy.copilot", "Disable and remove Windows Copilot (policy, taskbar button, app)",
+            "TurnOffWindowsCopilot=1 (user and machine policy), ShowCopilotButton=0 (taskbar button) and removal of the Copilot app packages. Restart Explorer for the taskbar button to disappear.",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot", "TurnOffWindowsCopilot", 1),
-            Dw(PolWin + @"\WindowsCopilot", "TurnOffWindowsCopilot", 1)) { Recommended = true, SupportedOn = OsSupport.Win11 };
+            Dw(PolWin + @"\WindowsCopilot", "TurnOffWindowsCopilot", 1),
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "ShowCopilotButton", 0))
+        {
+            Recommended = true, SupportedOn = OsSupport.Win11, Restart = RestartNeed.Explorer,
+            AppxPatterns = new[] { "*Copilot*" } // none of the protected packages contain "Copilot"; the remover filters them anyway
+        };
 
         // ---- Windows 10 equivalents (shown only on Windows 10) ----
         yield return new RegistryTweak("privacy.cortana.win10", "Windows 10: restrict Cortana (lock screen, consent)",
@@ -97,13 +103,13 @@ public static class PrivacyTweaks
             "The EnableFeeds=0 policy removes the weather/news widget from the taskbar (MSN ads and tracking, RAM used by Edge WebView).",
             c, RiskLevel.Safe,
             Dw(PolWin + @"\Windows Feeds", "EnableFeeds", 0))
-        { Recommended = true, SupportedOn = OsSupport.Win10, MinBuild = 19041 };
+        { Recommended = true, SupportedOn = OsSupport.Win10, MinBuild = 19041, Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("privacy.websearch", "Disable web search (Bing) in Start",
             "Search in Start shows local results only (BingSearchEnabled=0, DisableSearchBoxSuggestions=1).",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Search", "BingSearchEnabled", 0),
-            Dw(@"HKCU\Software\Policies\Microsoft\Windows\Explorer", "DisableSearchBoxSuggestions", 1)) { Recommended = true };
+            Dw(@"HKCU\Software\Policies\Microsoft\Windows\Explorer", "DisableSearchBoxSuggestions", 1)) { Recommended = true, Restart = RestartNeed.Explorer };
     }
 }
 

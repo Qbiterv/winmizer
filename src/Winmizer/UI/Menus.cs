@@ -67,6 +67,7 @@ public static class Menus
         AnsiConsole.Write(new Panel(
             L.T("Quick optimize applies only [green]proven, safe[/] settings: gaming, privacy, telemetry services,") + "\n" +
             L.T("appearance, disk and temp-file cleanup. Printers, network, Windows Update, Defender, the Store and Xbox are left untouched.") + "\n" +
+            L.T("It also [bold]uninstalls the recommended bloatware[/] (Cortana, Copilot, Bing apps, consumer Teams, promo apps...) - you confirm the list first.") + "\n" +
             (Hardware.IsLaptop ? "[yellow]" + L.T("Laptop detected - power settings that need a battery were skipped.") + "[/]\n" : "") +
             L.T("Everything can be undone in the [bold]Undo / restore[/] menu."))
             .Header("[bold]" + L.T("Quick optimize") + "[/]").BorderColor(Color.Green).Padding(1, 0));

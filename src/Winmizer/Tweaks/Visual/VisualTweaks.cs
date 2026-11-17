@@ -18,21 +18,21 @@ public static class VisualTweaks
             Sz(@"HKCU\Control Panel\Desktop\WindowMetrics", "MinAnimate", "0"),
             Dw(Adv, "TaskbarAnimations", 0),
             Dw(Adv, "ListviewAlphaSelect", 0),
-            Dw(Adv, "ListviewShadow", 0)) { Recommended = true };
+            Dw(Adv, "ListviewShadow", 0)) { Recommended = true, Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("visual.transparency", "Disable transparency effects",
             "Turns off acrylic/transparency in Start and windows - slightly less GPU load.",
             c, RiskLevel.Safe,
-            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "EnableTransparency", 0));
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "EnableTransparency", 0)) { Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("visual.startupdelay", "Remove the startup-app launch delay",
             "Serialize\\StartupDelayInMSec=0 - startup programs launch right after sign-in.",
             c, RiskLevel.Safe,
-            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize", "StartupDelayInMSec", 0)) { Recommended = true };
+            Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize", "StartupDelayInMSec", 0)) { Recommended = true, Restart = RestartNeed.SignOut };
 
         yield return new RegistryTweak("visual.menudelay", "No menu delay (MenuShowDelay=0)",
             "Drop-down menus appear instantly.",
-            c, RiskLevel.Safe, Sz(@"HKCU\Control Panel\Desktop", "MenuShowDelay", "0")) { Recommended = true };
+            c, RiskLevel.Safe, Sz(@"HKCU\Control Panel\Desktop", "MenuShowDelay", "0")) { Recommended = true, Restart = RestartNeed.SignOut };
 
         yield return new RegistryTweak("visual.bgapps", "Block background apps",
             "Policy LetAppsRunInBackground=2 - Store apps don't run in the background (saves RAM/CPU). Notifications from such apps may stop arriving.",
@@ -44,7 +44,7 @@ public static class VisualTweaks
             "Policy AllowNewsAndInterests=0 turns off the Widgets panel (weather, news, ads) and the Widgets.exe background process.",
             c, RiskLevel.Safe,
             Dw(@"HKLM\SOFTWARE\Policies\Microsoft\Dsh", "AllowNewsAndInterests", 0))
-        { SupportedOn = OsSupport.Win11 };
+        { SupportedOn = OsSupport.Win11, Restart = RestartNeed.Explorer };
 
         // ---- Windows 10 only ----
         yield return new RegistryTweak("visual.peoplebar", "Windows 10: hide the People bar",
@@ -52,12 +52,12 @@ public static class VisualTweaks
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People", "PeopleBand", 0),
             Dw(@"HKCU\Software\Policies\Microsoft\Windows\Explorer", "HidePeopleBar", 1))
-        { Recommended = true, SupportedOn = OsSupport.Win10 };
+        { Recommended = true, SupportedOn = OsSupport.Win10, Restart = RestartNeed.Explorer };
 
         yield return new RegistryTweak("visual.meetnow", "Windows 10: hide the Meet Now icon",
             "Hides the Meet Now (Skype) button in the taskbar tray (HideSCAMeetNow=1).",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer", "HideSCAMeetNow", 1))
-        { Recommended = true, SupportedOn = OsSupport.Win10 };
+        { Recommended = true, SupportedOn = OsSupport.Win10, Restart = RestartNeed.Explorer };
     }
 }

@@ -26,6 +26,7 @@ public abstract class TweakBase : ITweak
     public OsSupport SupportedOn { get; init; } = OsSupport.Both;
     public int MinBuild { get; init; }
     public string? OsNote { get => _osNote is null ? null : L.T(_osNote); init => _osNote = value; }
+    public RestartNeed Restart { get; init; }
     public bool IsApplicable => OsInfo.Matches(SupportedOn, MinBuild);
     public virtual bool IsReversible => true;
     public virtual bool IsAction => false;
@@ -62,10 +63,12 @@ public sealed class RegistryTweak : TweakBase
         Func<IEnumerable<RegSet>> entries)
         : base(id, name, description, category, risk) => _entries = entries;
 
-    public override bool IsApplied()
+    /// <summary>Appx packages (wildcards allowed) that must also be gone for the tweak to count as applied.</summary>
+    public string[] AppxPatterns { get; init; } = Array.Empty<string>();
+
+    private bool RegistryApplied()
     {
         var list = _entries().ToList();
-        if (list.Count == 0) return true;
         foreach (var e in list)
         {
             bool has = Reg.TryGet(e.Key, e.Name, out var v, out var k);
@@ -74,6 +77,9 @@ public sealed class RegistryTweak : TweakBase
         }
         return true;
     }
+
+    public override bool IsApplied() =>
+        RegistryApplied() && !AppxPatterns.Any(Winmizer.Tweaks.Debloat.AppxCache.IsPresent);
 
     public override void Apply()
     {
@@ -85,5 +91,6 @@ public sealed class RegistryTweak : TweakBase
             if (e.Value is null) Reg.Delete(e.Key, e.Name);
             else Reg.Set(e.Key, e.Name, e.Value, e.Kind);
         }
+        if (AppxPatterns.Length > 0) Winmizer.Tweaks.Debloat.AppxRemover.RemoveAll(AppxPatterns);
     }
 }

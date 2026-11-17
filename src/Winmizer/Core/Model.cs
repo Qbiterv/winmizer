@@ -11,6 +11,9 @@ public enum TweakCategory
 
 public enum ResultStatus { Applied, Skipped, Failed, DryRun, Reverted }
 
+/// <summary>What the user has to do for a tweak's change to become visible.</summary>
+public enum RestartNeed { None, Explorer, SignOut, Reboot }
+
 /// <summary>A single optimization that can be detected, applied and reverted.</summary>
 public interface ITweak
 {
@@ -33,6 +36,8 @@ public interface ITweak
     string? OsNote { get; }
     /// <summary>False when the tweak does not exist / behaves differently on this OS; it is then skipped.</summary>
     bool IsApplicable { get; }
+    /// <summary>What must be restarted for the change to show (nothing / Explorer / sign-out / reboot).</summary>
+    RestartNeed Restart { get; }
     /// <summary>Extra info after Apply (e.g. freed space).</summary>
     string? ResultNote { get; }
 

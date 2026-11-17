@@ -25,6 +25,7 @@ public static class GamingTweaks
         {
             Warning = "On older GPUs/drivers it can cause artifacts - use Revert if you run into problems.",
             MinBuild = 19041, // Windows 10 2004+
+            Restart = RestartNeed.Reboot,
             OsNote = "Needs Windows 10 2004+ (build 19041), a WDDM 2.7+ GPU and a recent driver; otherwise the setting is ignored."
         };
 
@@ -58,21 +59,21 @@ public static class GamingTweaks
 
         yield return new RegistryTweak("gaming.prioritysep", "Win32PrioritySeparation = 0x26",
             "Gives the foreground application (the game) a larger share of CPU time compared to background processes.",
-            c, RiskLevel.Moderate, Dw(@"HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl", "Win32PrioritySeparation", 0x26));
+            c, RiskLevel.Moderate, Dw(@"HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl", "Win32PrioritySeparation", 0x26)) { Restart = RestartNeed.Reboot };
 
         yield return new RegistryTweak("gaming.mouse", "Disable mouse acceleration",
             "Turns off \"Enhance pointer precision\" (MouseSpeed/Threshold = 0) - constant, predictable sensitivity in FPS games.",
             c, RiskLevel.Safe,
             Sz(@"HKCU\Control Panel\Mouse", "MouseSpeed", "0"),
             Sz(@"HKCU\Control Panel\Mouse", "MouseThreshold1", "0"),
-            Sz(@"HKCU\Control Panel\Mouse", "MouseThreshold2", "0")) { Recommended = true };
+            Sz(@"HKCU\Control Panel\Mouse", "MouseThreshold2", "0")) { Recommended = true, Restart = RestartNeed.SignOut };
 
         yield return new RegistryTweak("gaming.stickykeys", "Disable Sticky/Filter/Toggle Keys prompts",
             "Turns off the shortcuts that open accessibility dialogs (5x Shift etc.), which can minimize a game.",
             c, RiskLevel.Safe,
             Sz(@"HKCU\Control Panel\Accessibility\StickyKeys", "Flags", "506"),
             Sz(@"HKCU\Control Panel\Accessibility\ToggleKeys", "Flags", "58"),
-            Sz(@"HKCU\Control Panel\Accessibility\Keyboard Response", "Flags", "122")) { Recommended = true };
+            Sz(@"HKCU\Control Panel\Accessibility\Keyboard Response", "Flags", "122")) { Recommended = true, Restart = RestartNeed.SignOut };
 
         yield return new RegistryTweak("gaming.vrr", "Windowed-game optimizations + VRR",
             "Enables SwapEffectUpgradeEnable and VRROptimizeEnable (DirectX) - lower latency in windowed games and variable refresh rate.",

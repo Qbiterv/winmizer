@@ -3,6 +3,7 @@ using Winmizer.Core;
 using Winmizer.Core.Localization;
 using Winmizer.Tweaks;
 using Winmizer.Tweaks.Cleanup;
+using Winmizer.Tweaks.Debloat;
 
 namespace Winmizer.UI;
 
@@ -32,7 +33,7 @@ public static class Ui
         {
             if (!t.IsApplicable) return "[grey]" + L.T("N/A on this system") + "[/]";
             if (t.IsAction) return "[grey]" + L.T("one-time action") + "[/]";
-            return t.IsApplied() ? "[green]" + L.T("YES - applied") + "[/]" : "[grey]" + L.T("no") + "[/]";
+            return t.IsApplied() ? "[green]" + L.T("YES - applied") + "[/]" : "[grey]" + L.T("Not applied") + "[/]";
         }
         catch { return "[red]" + L.T("detection error") + "[/]"; }
     }
@@ -90,7 +91,10 @@ public static class Ui
                 ResultStatus.Skipped => "[grey]" + L.T("skipped") + "[/]",
                 _ => "[red]" + L.T("ERROR") + "[/]"
             };
-            table.AddRow(Esc(Labels.Category(r.Tweak.Category)), Esc(r.Tweak.Name), st, Esc(r.Message));
+            string details = r.Message;
+            if (r.Status is ResultStatus.Applied or ResultStatus.DryRun && r.Tweak.Restart != RestartNeed.None)
+                details = (details.Length > 0 ? details + " " : "") + "(" + RestartLabel(r.Tweak.Restart) + ")";
+            table.AddRow(Esc(Labels.Category(r.Tweak.Category)), Esc(r.Tweak.Name), st, Esc(details));
         }
         AnsiConsole.Write(table);
 
@@ -121,8 +125,12 @@ public static class Ui
         if (tweaks.Any(t => t.Risk == RiskLevel.Advanced))
             AnsiConsole.MarkupLine("[red]" + L.T("You selected advanced tweaks - read their descriptions above carefully.") + "[/]");
 
-        if (interactive && !Ctx.DryRun &&
-            !AnsiConsole.Confirm(L.F("Apply [bold]{0}[/] change(s)? A system restore point will be created first.", tweaks.Count), false))
+        int removing = ShowAppRemovalList(tweaks);
+        string confirmText = removing > 0
+            ? L.F("Apply [bold]{0}[/] change(s), including removing [bold]{1}[/] app(s)? A system restore point will be created first.", tweaks.Count, removing)
+            : L.F("Apply [bold]{0}[/] change(s)? A system restore point will be created first.", tweaks.Count);
+
+        if (interactive && !Ctx.DryRun && !AnsiConsole.Confirm(confirmText, false))
         {
             AnsiConsole.MarkupLine("[grey]" + L.T("Cancelled.") + "[/]");
             return;
@@ -169,8 +177,89 @@ public static class Ui
             }
         }
 
-        if (interactive && !Ctx.DryRun && results.Any(r => r.Status == ResultStatus.Applied))
-            RebootPrompt();
+        RestartFlow(results, interactive);
+    }
+
+    /// <summary>Localized description of what has to be restarted.</summary>
+    public static string RestartLabel(RestartNeed n) => n switch
+    {
+        RestartNeed.Explorer => L.T("needs Explorer restart"),
+        RestartNeed.SignOut => L.T("needs sign-out"),
+        RestartNeed.Reboot => L.T("needs reboot"),
+        _ => L.T("no restart needed")
+    };
+
+    /// <summary>
+    /// Lists the apps the selected tweaks would uninstall (with their current state) so the user can
+    /// confirm once. Returns how many of them are actually installed. Protected packages never appear.
+    /// </summary>
+    private static int ShowAppRemovalList(IEnumerable<ITweak> tweaks)
+    {
+        var rows = new List<(string Name, string Pattern)>();
+        foreach (var t in tweaks)
+        {
+            if (t is AppxTweak a) rows.Add((t.Name, a.Pattern));
+            else if (t is RegistryTweak { AppxPatterns.Length: > 0 } r)
+                foreach (var p in r.AppxPatterns) rows.Add((t.Name, p));
+        }
+        rows = rows.DistinctBy(x => x.Pattern, StringComparer.OrdinalIgnoreCase).ToList();
+        if (rows.Count == 0) return 0;
+
+        var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.Red);
+        table.AddColumn(L.T("Apps to be removed")).AddColumn(L.T("Package")).AddColumn(L.T("State"));
+        int installed = 0;
+        AnsiConsole.Status().Start(L.T("Looking for installed apps..."), _ =>
+        {
+            foreach (var (name, pattern) in rows)
+            {
+                bool present = false;
+                try { present = AppxCache.IsPresent(pattern); } catch { }
+                if (present) installed++;
+                table.AddRow(Esc(name), Esc(pattern),
+                    present ? "[red]" + L.T("installed - will be removed") + "[/]" : "[grey]" + L.T("not installed - skipped") + "[/]");
+            }
+        });
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(table);
+        AnsiConsole.MarkupLine("[grey]" + L.T("Always kept: Microsoft Store, App Installer/winget, Calculator, Photos, Notepad, Terminal, Paint, Snipping Tool, Camera, Xbox identity and Gaming Services.") + "[/]");
+        return installed;
+    }
+
+    /// <summary>Tells the user what is needed for the changes to show; offers / performs the Explorer restart.</summary>
+    private static void RestartFlow(IReadOnlyList<TweakResult> results, bool interactive)
+    {
+        var done = results.Where(r => r.Status is ResultStatus.Applied or ResultStatus.DryRun).Select(r => r.Tweak).ToList();
+        var byNeed = done.Where(t => t.Restart != RestartNeed.None).GroupBy(t => t.Restart).ToDictionary(g => g.Key, g => g.ToList());
+        if (byNeed.Count == 0)
+        {
+            if (done.Count > 0) AnsiConsole.MarkupLine("\n[green]" + L.T("No restart needed - the changes are already in effect.") + "[/]");
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"\n[bold]{L.T("For the changes to show:")}[/]");
+        string Names(RestartNeed n) => Esc(string.Join(", ", byNeed[n].Select(t => Truncate(t.Name, 50))));
+        if (byNeed.ContainsKey(RestartNeed.Reboot))
+            AnsiConsole.MarkupLine("  [yellow]" + L.T("Restart the computer:") + "[/] " + Names(RestartNeed.Reboot));
+        if (byNeed.ContainsKey(RestartNeed.SignOut))
+            AnsiConsole.MarkupLine("  [yellow]" + L.T("Sign out and back in:") + "[/] " + Names(RestartNeed.SignOut));
+        bool explorer = byNeed.ContainsKey(RestartNeed.Explorer);
+        if (explorer)
+            AnsiConsole.MarkupLine("  [yellow]" + L.T("Restart Explorer (taskbar / Start / shell):") + "[/] " + Names(RestartNeed.Explorer));
+
+        if (explorer)
+        {
+            bool go = Ctx.DryRun || !interactive || AnsiConsole.Confirm(L.T("Restart Explorer now? (y/N)"), false);
+            if (go)
+            {
+                var (ok, msg) = ExplorerHelper.Restart();
+                foreach (var (_, m) in Ctx.Log.Drain().Where(l => l.Level == "DRY")) AnsiConsole.MarkupLine($"[grey]  {Esc(m)}[/]");
+                if (!Ctx.DryRun)
+                    AnsiConsole.MarkupLine(ok ? "[green]" + L.T("Explorer restarted.") + "[/]" : $"[red]{L.T("Cannot restart Explorer:")}[/] {Esc(msg)}");
+            }
+            else AnsiConsole.MarkupLine("[grey]" + L.T("Explorer not restarted - sign out or restart it later for the changes to show.") + "[/]");
+        }
+
+        if (byNeed.ContainsKey(RestartNeed.Reboot) && interactive && !Ctx.DryRun) RebootPrompt();
     }
 
     public static void RebootPrompt()

@@ -196,12 +196,12 @@ internal static class PolishStrings
         A("Disable telemetry tasks", "Wyłącz zadania telemetryczne");
         A("Disables the scheduled tasks Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip and DmClient. Windows Update is not affected.",
           "Wyłącza harmonogramowane zadania: Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip, DmClient. Windows Update nie jest naruszony.");
-        A("Disable Cortana (AllowCortana=0 policy)", "Wyłącz Cortanę (zasada AllowCortana=0)");
-        A("Turns Cortana off via system policy. Safe - Windows Search keeps working normally.",
-          "Wyłącza Cortanę przez zasadę systemową. Bezpieczne - Wyszukiwanie Windows działa normalnie.");
-        A("Disable Windows Copilot (policy)", "Wyłącz Windows Copilot (zasada)");
-        A("TurnOffWindowsCopilot=1 - hides and disables Copilot in the system.",
-          "TurnOffWindowsCopilot=1 - ukrywa i wyłącza Copilot w systemie.");
+        A("Disable and remove Cortana (policy + app)", "Wyłącz i usuń Cortanę (zasada + aplikacja)");
+        A("Turns Cortana off via the AllowCortana=0 policy and uninstalls the Cortana app (Microsoft.549981C3F5F10). Windows Search keeps working normally. Counts as applied only when the app is gone too.",
+          "Wyłącza Cortanę zasadą AllowCortana=0 i odinstalowuje aplikację Cortana (Microsoft.549981C3F5F10). Wyszukiwanie Windows działa normalnie. Uznawane za zastosowane dopiero, gdy aplikacja zniknie.");
+        A("Disable and remove Windows Copilot (policy, taskbar button, app)", "Wyłącz i usuń Windows Copilot (zasada, przycisk paska zadań, aplikacja)");
+        A("TurnOffWindowsCopilot=1 (user and machine policy), ShowCopilotButton=0 (taskbar button) and removal of the Copilot app packages. Restart Explorer for the taskbar button to disappear.",
+          "TurnOffWindowsCopilot=1 (zasada użytkownika i komputera), ShowCopilotButton=0 (przycisk paska zadań) oraz usunięcie pakietów aplikacji Copilot. Aby przycisk zniknął z paska zadań, uruchom ponownie Eksploratora.");
         A("Windows 10: restrict Cortana (lock screen, consent)", "Windows 10: ogranicz Cortanę (ekran blokady, zgoda)");
         A("On Windows 10 Cortana is a separate component: this blocks it on the lock screen (AllowCortanaAboveLock=0) and withdraws user consent (CortanaConsent=0). Complements the AllowCortana=0 policy.",
           "Cortana na Windows 10 to osobny komponent: blokuje ją na ekranie blokady (AllowCortanaAboveLock=0) i cofa zgodę użytkownika (CortanaConsent=0). Uzupełnia zasadę AllowCortana=0.");
@@ -536,9 +536,9 @@ internal static class PolishStrings
         A("interactive menu (requires administrator)", "interaktywne menu (wymaga administratora)");
         A("list all tweaks and their detected status (no system changes)", "wypisz wszystkie tweaki i ich wykryty status (bez zmian w systemie)");
         A("menu in preview mode - nothing is changed", "menu w trybie podglądu - nic nie jest zmieniane");
-        A("preview the Quick optimize set (non-interactive)", "podgląd zestawu Szybka optymalizacja (bez interakcji)");
+        A("preview the Quick optimize set incl. app removal (non-interactive)", "podgląd zestawu Szybka optymalizacja wraz z usuwaniem aplikacji (bez interakcji)");
         A("preview selected tweaks", "podgląd wybranych tweaków");
-        A("apply the Quick optimize set without prompts", "zastosuj zestaw Szybka optymalizacja bez pytań");
+        A("apply the Quick optimize set without prompts (also restarts Explorer if needed)", "zastosuj zestaw Szybka optymalizacja bez pytań (w razie potrzeby uruchamia też ponownie Eksploratora)");
         A("apply selected tweaks without prompts", "zastosuj wybrane tweaki bez pytań");
         A("undo everything from backup.json", "cofnij wszystko z backup.json");
         A("UI language for this run (English is the default; the menu can save a choice)", "język interfejsu dla tego uruchomienia (domyślnie angielski; menu zapamiętuje wybór)");
@@ -557,6 +557,37 @@ internal static class PolishStrings
         A("Laptop: {0}; power plan: {1}", "Laptop: {0}; plan zasilania: {1}");
         A("Unknown ID:", "Nieznane ID:");
         A("(see --list)", "(zobacz --list)");
+
+        // ---- v1.0.1: Quick removes bloatware, verifiable Appx removal, Explorer restart ----
+        A("Windows Copilot (system package)", "Windows Copilot (pakiet systemowy)");
+        A("The Copilot package of Windows 11 (taskbar button / sidebar).", "Pakiet Copilot w Windows 11 (przycisk paska zadań / panel boczny).");
+        A("Not applied", "Nie zastosowano");
+        A("Package {0} is still present after removal: {1}", "Pakiet {0} nadal jest obecny po usunięciu: {1}");
+        A("Apply [bold]{0}[/] change(s), including removing [bold]{1}[/] app(s)? A system restore point will be created first.",
+          "Zastosować [bold]{0}[/] zmian(y), w tym usunąć [bold]{1}[/] aplikacji? Najpierw zostanie utworzony punkt przywracania systemu.");
+        A("Apps to be removed", "Aplikacje do usunięcia");
+        A("Package", "Pakiet");
+        A("State", "Stan");
+        A("installed - will be removed", "zainstalowana - zostanie usunięta");
+        A("not installed - skipped", "niezainstalowana - pominięto");
+        A("needs Explorer restart", "wymaga restartu Eksploratora");
+        A("needs sign-out", "wymaga wylogowania");
+        A("needs reboot", "wymaga restartu komputera");
+        A("no restart needed", "restart niepotrzebny");
+        A("No restart needed - the changes are already in effect.", "Restart niepotrzebny - zmiany już działają.");
+        A("For the changes to show:", "Aby zmiany były widoczne:");
+        A("Restart the computer:", "Uruchom ponownie komputer:");
+        A("Sign out and back in:", "Wyloguj się i zaloguj ponownie:");
+        A("Restart Explorer (taskbar / Start / shell):", "Uruchom ponownie Eksploratora (pasek zadań / Start / powłoka):");
+        A("Restart Explorer now? (y/N)", "Uruchomić ponownie Eksploratora teraz? (y/N)");
+        A("Explorer restarted.", "Eksplorator uruchomiony ponownie.");
+        A("Cannot restart Explorer:", "Nie można ponownie uruchomić Eksploratora:");
+        A("Explorer not restarted - sign out or restart it later for the changes to show.", "Eksplorator nie został uruchomiony ponownie - wyloguj się lub zrestartuj go później, aby zmiany były widoczne.");
+        A("Would restart Explorer (kill explorer.exe and start it again).", "Zrestartowałbym Eksploratora (zakończenie explorer.exe i ponowne uruchomienie).");
+        A("taskkill explorer.exe failed: {0}", "taskkill explorer.exe nie powiódł się: {0}");
+        A("Cannot start explorer.exe: {0}", "Nie można uruchomić explorer.exe: {0}");
+        A("It also [bold]uninstalls the recommended bloatware[/] (Cortana, Copilot, Bing apps, consumer Teams, promo apps...) - you confirm the list first.",
+          "Dodatkowo [bold]odinstalowuje zalecany bloatware[/] (Cortana, Copilot, aplikacje Bing, Teams konsumencki, aplikacje promocyjne...) - listę najpierw potwierdzasz.");
 
         return m;
     }

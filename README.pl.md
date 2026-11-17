@@ -13,6 +13,7 @@
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![Licencja: MIT](https://img.shields.io/badge/licencja-MIT-green.svg)](LICENSE)
 [![Najnowsze wydanie](https://img.shields.io/github/v/release/Qbiterv/winmizer?label=wydanie&color=cyan)](https://github.com/Qbiterv/winmizer/releases/latest)
+[![Pobrania](https://img.shields.io/github/downloads/Qbiterv/winmizer/total?label=pobrania&color=blueviolet)](https://github.com/Qbiterv/winmizer/releases)
 
 [**Pobierz najnowsze wydanie**](https://github.com/Qbiterv/winmizer/releases/latest) · [Instalacja](#instalacja) · [Bezpieczeństwo](#bezpieczeństwo) · [FAQ](#faq)
 

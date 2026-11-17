@@ -50,7 +50,7 @@ jobs:
         shell: pwsh
         run: |
           Set-Location publish
-          $files = Get-ChildItem -File -Include 'Winmizer-*.zip', 'Winmizer-*.msi' -Path . | Sort-Object Name
+          $files = Get-ChildItem -File -Path 'Winmizer-*.zip', 'Winmizer-*.msi' | Sort-Object Name
           if (-not $files) { throw 'No release files found in publish/' }
           $lines = $files | ForEach-Object { '{0} *{1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name }
           [System.IO.File]::WriteAllText((Join-Path $PWD 'SHA256SUMS.txt'), (($lines -join "`n") + "`n"), (New-Object System.Text.UTF8Encoding($false)))

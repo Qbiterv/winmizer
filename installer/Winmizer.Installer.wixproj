@@ -1,0 +1,17 @@
+﻿<Project Sdk="WixToolset.Sdk/4.0.5">
+
+  <PropertyGroup>
+    <Platforms>x86;x64;arm64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <OutputName Condition="'$(OutputName)' == ''">Winmizer-$(ProductVersion)-$(Platform)</OutputName>
+    <!-- Path to the published Winmizer.exe for this platform (build.ps1 passes it in). -->
+    <AppExe Condition="'$(AppExe)' == ''">$(MSBuildThisFileDirectory)..\publish\win-$(Platform)\Winmizer.exe</AppExe>
+    <IconFile>$(MSBuildThisFileDirectory)..\src\Winmizer\Assets\winmizer.ico</IconFile>
+    <!-- Shortcuts live in all-users folders (per-machine install); ICE38/43/57 assume per-user. -->
+    <SuppressIces>ICE38;ICE43;ICE57</SuppressIces>
+    <DefineConstants>$(DefineConstants);ProductVersion=$(ProductVersion);AppExe=$(AppExe);IconFile=$(IconFile)</DefineConstants>
+  </PropertyGroup>
+
+</Project>
+

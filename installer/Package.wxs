@@ -1,0 +1,68 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Winmizer"
+           Manufacturer="Qbiterv"
+           Version="$(ProductVersion)"
+           UpgradeCode="6F1D2B7A-3C54-4E8B-9A0D-5B7E1C2F4A93"
+           Scope="perMachine"
+           Compressed="yes">
+
+    <SummaryInformation Description="Winmizer - optymalizator Windows 10/11 dla graczy" />
+
+    <MajorUpgrade DowngradeErrorMessage="Zainstalowana jest nowsza wersja programu Winmizer." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="WinmizerIcon.ico" SourceFile="$(IconFile)" />
+
+    <!-- Add/Remove Programs -->
+    <Property Id="ARPPRODUCTICON" Value="WinmizerIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/Qbiterv/winmizer" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/Qbiterv/winmizer" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/Qbiterv/winmizer/releases/latest" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <!-- Desktop shortcut is on by default; disable with: msiexec /i Winmizer.msi INSTALLDESKTOPSHORTCUT=0 -->
+    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Winmizer" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="WinmizerExe" Guid="*">
+        <File Id="WinmizerExe" Source="$(AppExe)" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="StartMenuShortcuts" Directory="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="B2E4A6C8-1D3F-4B5A-8C7E-9F0A1B2C3D4E">
+        <Shortcut Id="StartMenuShortcut" Name="Winmizer"
+                  Description="Winmizer - optymalizator Windows 10/11 dla graczy"
+                  Target="[INSTALLFOLDER]Winmizer.exe" WorkingDirectory="INSTALLFOLDER"
+                  Icon="WinmizerIcon.ico" />
+        <RegistryValue Root="HKLM" Key="Software\Qbiterv\Winmizer" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DesktopShortcuts" Directory="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="C3F5B7D9-2E4A-4C6B-9D8F-0A1B2C3D4E5F"
+                 Condition="INSTALLDESKTOPSHORTCUT = &quot;1&quot;">
+        <Shortcut Id="DesktopShortcut" Name="Winmizer"
+                  Description="Winmizer - optymalizator Windows 10/11 dla graczy"
+                  Target="[INSTALLFOLDER]Winmizer.exe" WorkingDirectory="INSTALLFOLDER"
+                  Icon="WinmizerIcon.ico" />
+        <RegistryValue Root="HKLM" Key="Software\Qbiterv\Winmizer" Name="DesktopShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="Main" Title="Winmizer" Level="1" AllowAbsent="no">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentGroupRef Id="StartMenuShortcuts" />
+      <ComponentGroupRef Id="DesktopShortcuts" />
+    </Feature>
+  </Package>
+</Wix>

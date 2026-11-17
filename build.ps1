@@ -2,16 +2,19 @@
 .SYNOPSIS
   Builds Winmizer and publishes self-contained single-file Release builds for
   win-x64, win-arm64 and win-x86 into publish\<rid>\Winmizer.exe, plus
-  publish\Winmizer-<version>-<rid>.zip archives.
+  publish\Winmizer-<version>-<rid>.zip archives and WiX v4 MSI installers
+  (publish\Winmizer-<version>-<arch>.msi). Use -NoInstaller to skip the MSIs.
 .EXAMPLE
   .\build.ps1
+  .\build.ps1 -NoInstaller
   .\build.ps1 -Runtime win-x64
   .\build.ps1 -Output C:\temp\winmizer
 #>
 param(
     [string]$Configuration = 'Release',
     [string]$Output = (Join-Path $PSScriptRoot 'publish'),
-    [string[]]$Runtime = @('win-x64', 'win-arm64', 'win-x86')
+    [string[]]$Runtime = @('win-x64', 'win-arm64', 'win-x86'),
+    [switch]$NoInstaller
 )
 
 $ErrorActionPreference = 'Stop'
@@ -59,7 +62,23 @@ foreach ($rid in $Runtime) {
     if (Test-Path $zip) { Remove-Item $zip -Force }
     Compress-Archive -Path $exe -DestinationPath $zip -CompressionLevel Optimal
 
+    $msiMB = ''
+    if (-not $NoInstaller) {
+        # WiX Toolset v4 (WixToolset.Sdk 4.0.5, restored from NuGet) - one MSI per architecture.
+        $arch = $rid -replace '^win-', ''
+        Write-Host "==> Building MSI for $arch..." -ForegroundColor Cyan
+        $wixproj = Join-Path $PSScriptRoot 'installer\Winmizer.Installer.wixproj'
+        dotnet build $wixproj -c $Configuration -p:Platform=$arch -p:ProductVersion=$version -p:AppExe=$exe
+        if ($LASTEXITCODE -ne 0) { throw "MSI build failed for $arch ($LASTEXITCODE)" }
+        $built = Join-Path $PSScriptRoot "installer\bin\$arch\$Configuration\Winmizer-$version-$arch.msi"
+        if (-not (Test-Path $built)) { throw "MSI was not produced for $arch." }
+        $msi = Join-Path $Output "Winmizer-$version-$arch.msi"
+        Copy-Item $built $msi -Force
+        $msiMB = [math]::Round((Get-Item $msi).Length / 1MB, 1)
+    }
+
     $results += [pscustomobject]@{
+        MsiMB  = $msiMB
         RID    = $rid
         ExeMB  = [math]::Round((Get-Item $exe).Length / 1MB, 1)
         ZipMB  = [math]::Round((Get-Item $zip).Length / 1MB, 1)
@@ -69,5 +88,5 @@ foreach ($rid in $Runtime) {
 }
 
 Write-Host ''
-$results | Format-Table RID, ExeMB, ZipMB, Exe -AutoSize
+$results | Format-Table RID, ExeMB, ZipMB, MsiMB, Exe -AutoSize
 Write-Host '    Run it as Administrator (it asks for UAC elevation itself; --list/--dry-run need no admin).'

@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Winmizer.Core;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Tweaks.Storage;
 
@@ -7,12 +8,12 @@ public static class StorageTweaks
 {
     public static IEnumerable<ITweak> Create()
     {
-        yield return new FsutilTweak("storage.trim", "Upewnij się, że TRIM jest włączony",
-            "fsutil behavior set DisableDeleteNotify 0 - system informuje SSD o zwolnionych blokach (wydajność i żywotność).",
+        yield return new FsutilTweak("storage.trim", "Make sure TRIM is enabled",
+            "fsutil behavior set DisableDeleteNotify 0 - the OS tells the SSD which blocks are free (performance and lifespan).",
             "DisableDeleteNotify", "0", accept: new[] { 0 }) { Recommended = true };
 
-        yield return new FsutilTweak("storage.lastaccess", "Wyłącz znacznik ostatniego dostępu NTFS",
-            "fsutil behavior set disablelastaccess 1 - mniej zapisów na dysk przy każdym odczycie pliku.",
+        yield return new FsutilTweak("storage.lastaccess", "Disable NTFS last-access timestamps",
+            "fsutil behavior set disablelastaccess 1 - fewer disk writes every time a file is read.",
             "disablelastaccess", "1", accept: new[] { 1, 3 }) { Recommended = true };
     }
 }
@@ -45,7 +46,7 @@ public sealed class FsutilTweak : TweakBase
         if (cur.HasValue) Ctx.Backup.Record(Id, new BackupEntry { Kind = "fsutil", Key = _flag, Value = cur.Value.ToString() });
         Ctx.Backup.Save();
         var r = Proc.Run("fsutil.exe", new[] { "behavior", "set", _flag, _target },
-            description: $"fsutil behavior set {_flag} {_target}");
+            description: L.F("Would run fsutil behavior set {0} {1}", _flag, _target));
         if (!r.Ok) throw new InvalidOperationException(r.Text);
     }
 }

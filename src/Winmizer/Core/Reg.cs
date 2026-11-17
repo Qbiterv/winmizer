@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -86,12 +87,12 @@ public static class Reg
     {
         if (Ctx.DryRun)
         {
-            Ctx.Log.Dry($"Ustawiłbym rejestr: {key} -> {name} = {Serialize(value, kind)}");
+            Ctx.Log.Dry(L.F("Would set registry: {0} -> {1} = {2}", key, name, Serialize(value, kind)));
             return;
         }
         var (hive, sub) = Split(key);
         using var root = Root(hive);
-        using var rk = root.CreateSubKey(sub, true) ?? throw new InvalidOperationException("Nie można otworzyć klucza " + key);
+        using var rk = root.CreateSubKey(sub, true) ?? throw new InvalidOperationException(L.F("Cannot open registry key {0}", key));
         object toWrite = value;
         if (kind == RegistryValueKind.DWord)
             toWrite = value is uint u ? unchecked((int)u) : Convert.ToInt32(value);
@@ -103,7 +104,7 @@ public static class Reg
     {
         if (Ctx.DryRun)
         {
-            Ctx.Log.Dry($"Usunąłbym wartość rejestru: {key} -> {name}");
+            Ctx.Log.Dry(L.F("Would delete registry value: {0} -> {1}", key, name));
             return;
         }
         var (hive, sub) = Split(key);

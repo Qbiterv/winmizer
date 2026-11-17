@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -44,7 +45,7 @@ public sealed class BackupStore
         }
         catch (Exception ex)
         {
-            Ctx.Log.Warn("Nie można wczytać backup.json: " + ex.Message);
+            Ctx.Log.Warn(L.F("Cannot read backup.json: {0}", ex.Message));
             if (!Ctx.DryRun) { try { File.Copy(Paths.BackupFile, Paths.BackupFile + ".corrupt", true); } catch { } }
             _data = new BackupData();
         }
@@ -104,8 +105,8 @@ public sealed class BackupStore
         }
         catch (Exception ex)
         {
-            Ctx.Log.Error("Zapis backup.json nie powiódł się: " + ex.Message);
-            throw new IOException("Nie można zapisać kopii zapasowej (backup.json) - zmiana wstrzymana: " + ex.Message, ex);
+            Ctx.Log.Error(L.F("Writing backup.json failed: {0}", ex.Message));
+            throw new IOException(L.F("Cannot save the backup (backup.json) - change aborted: {0}", ex.Message), ex);
         }
     }
 

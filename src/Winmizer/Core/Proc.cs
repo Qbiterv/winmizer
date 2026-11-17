@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -18,7 +19,7 @@ public static class Proc
         var argList = args.ToList();
         if (mutating && Ctx.DryRun)
         {
-            Ctx.Log.Dry(description ?? $"Uruchomiłbym: {file} {string.Join(' ', argList)}");
+            Ctx.Log.Dry(description ?? L.F("Would run: {0} {1}", file, string.Join(' ', argList)));
             return new ProcResult(0, "", "");
         }
 
@@ -37,7 +38,7 @@ public static class Proc
 
         try
         {
-            using var p = Process.Start(psi) ?? throw new InvalidOperationException("Nie udało się uruchomić " + file);
+            using var p = Process.Start(psi) ?? throw new InvalidOperationException(L.F("Failed to start {0}", file));
             p.StandardInput.Close();
             var stdout = new StringBuilder();
             var stderr = new StringBuilder();
@@ -48,7 +49,7 @@ public static class Proc
             if (!p.WaitForExit(timeoutMs))
             {
                 try { p.Kill(true); } catch { }
-                Ctx.Log.Warn($"Przekroczono limit czasu: {file}");
+                Ctx.Log.Warn(L.F("Timed out: {0}", file));
                 return new ProcResult(-1, stdout.ToString(), "timeout");
             }
             p.WaitForExit(); // flush async readers
@@ -87,7 +88,7 @@ public static class PS
     {
         if (mutating && Ctx.DryRun)
         {
-            Ctx.Log.Dry(description ?? "Uruchomiłbym PowerShell: " + script.Split('\n')[0].Trim());
+            Ctx.Log.Dry(description ?? L.F("Would run PowerShell: {0}", script.Split('\n')[0].Trim()));
             return new ProcResult(0, "", "");
         }
         string full = "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; " +

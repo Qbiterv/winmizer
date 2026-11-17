@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -38,8 +39,8 @@ public static class OsInfo
     }
 
     public static string? UnsupportedWarning => IsSupported ? null :
-        $"Wykryto {Description}. Winmizer wspiera Windows 10 1809 (build {MinSupportedBuild}) i nowsze - " +
-        "na starszych wersjach część tweaków może nie działać. Używasz na własną odpowiedzialność.";
+        L.F("Detected {0}. Winmizer supports Windows 10 1809 (build {1}) and newer - " +
+            "on older versions some tweaks may not work. Use at your own risk.", Description, MinSupportedBuild);
 
     public static bool Matches(OsSupport s, int minBuild = 0) =>
         Build >= minBuild && s switch
@@ -49,12 +50,12 @@ public static class OsInfo
             _ => true
         };
 
-    /// <summary>Short Polish reason shown when a tweak does not apply to this system.</summary>
+    /// <summary>Short reason shown when a tweak does not apply to this system.</summary>
     public static string NotApplicableReason(OsSupport s, int minBuild = 0)
     {
-        if (s == OsSupport.Win11 && !IsWin11) return "N/D w tym systemie (tylko Windows 11)";
-        if (s == OsSupport.Win10 && !IsWin10) return "N/D w tym systemie (tylko Windows 10)";
-        if (Build < minBuild) return $"N/D w tym systemie (wymaga builda {minBuild}+, masz {Build})";
+        if (s == OsSupport.Win11 && !IsWin11) return L.T("N/A on this system (Windows 11 only)");
+        if (s == OsSupport.Win10 && !IsWin10) return L.T("N/A on this system (Windows 10 only)");
+        if (Build < minBuild) return L.F("N/A on this system (needs build {0}+, you have {1})", minBuild, Build);
         return "";
     }
 

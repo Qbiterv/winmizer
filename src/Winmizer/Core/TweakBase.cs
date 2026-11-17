@@ -1,23 +1,31 @@
+using Winmizer.Core.Localization;
+
 namespace Winmizer.Core;
 
-/// <summary>Base class: metadata plus a generic backup-based Revert.</summary>
+/// <summary>
+/// Base class: metadata plus a generic backup-based Revert. Name, description, warning and OS note are
+/// written in English and translated on read, so the language can change at runtime.
+/// </summary>
 public abstract class TweakBase : ITweak
 {
+    private readonly string _name, _description;
+    private readonly string? _warning, _osNote;
+
     protected TweakBase(string id, string name, string description, TweakCategory category, RiskLevel risk)
     {
-        Id = id; Name = name; Description = description; Category = category; Risk = risk;
+        Id = id; _name = name; _description = description; Category = category; Risk = risk;
     }
 
     public string Id { get; }
-    public string Name { get; }
-    public string Description { get; }
+    public string Name => L.T(_name);
+    public string Description => L.T(_description);
     public TweakCategory Category { get; }
     public RiskLevel Risk { get; }
     public virtual bool Recommended { get; init; }
-    public string? Warning { get; init; }
+    public string? Warning { get => _warning is null ? null : L.T(_warning); init => _warning = value; }
     public OsSupport SupportedOn { get; init; } = OsSupport.Both;
     public int MinBuild { get; init; }
-    public string? OsNote { get; init; }
+    public string? OsNote { get => _osNote is null ? null : L.T(_osNote); init => _osNote = value; }
     public bool IsApplicable => OsInfo.Matches(SupportedOn, MinBuild);
     public virtual bool IsReversible => true;
     public virtual bool IsAction => false;
@@ -38,7 +46,7 @@ public abstract class ActionTweak : TweakBase
     public override bool IsReversible => false;
     public override bool IsAction => true;
     public override bool IsApplied() => false;
-    public override void Revert() => throw new TweakSkippedException("Akcji czyszczenia nie można cofnąć.");
+    public override void Revert() => throw new TweakSkippedException(L.T("Cleanup actions cannot be undone."));
 }
 
 /// <summary>Sets/removes registry values; originals are backed up automatically.</summary>

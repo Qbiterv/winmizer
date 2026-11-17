@@ -1,4 +1,5 @@
 using Winmizer.Core;
+using Winmizer.Core.Localization;
 using static Winmizer.Core.R;
 
 namespace Winmizer.Tweaks.Network;
@@ -11,8 +12,8 @@ public static class NetworkTweaks
     {
         var c = TweakCategory.Network;
 
-        yield return new RegistryTweak("network.nagle", "Wyłącz algorytm Nagle'a (niższy ping)",
-            "TcpAckFrequency=1 i TCPNoDelay=1 na każdym interfejsie - pakiety gier wysyłane od razu. Wpływ na ping jest niewielki; nie rusza Wi-Fi ani sterowników.",
+        yield return new RegistryTweak("network.nagle", "Disable Nagle's algorithm (lower ping)",
+            "TcpAckFrequency=1 and TCPNoDelay=1 on every interface - game packets are sent immediately. The effect on ping is small; doesn't touch Wi-Fi or drivers.",
             c, RiskLevel.Moderate,
             () => Reg.SubKeys(Interfaces).SelectMany(g => new[]
             {
@@ -20,8 +21,8 @@ public static class NetworkTweaks
                 Dw($@"{Interfaces}\{g}", "TCPNoDelay", 1)
             }));
 
-        yield return new RegistryTweak("network.dop2p", "Delivery Optimization: wyłącz udostępnianie P2P",
-            "DODownloadMode=0 - aktualizacje pobierane tylko z serwerów Microsoft (bez wysyłania ich innym komputerom). Windows Update działa normalnie.",
+        yield return new RegistryTweak("network.dop2p", "Delivery Optimization: disable P2P sharing",
+            "DODownloadMode=0 - updates are downloaded only from Microsoft servers (and not uploaded to other PCs). Windows Update works normally.",
             c, RiskLevel.Safe,
             Dw(@"HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization", "DODownloadMode", 0)) { Recommended = true };
 
@@ -31,11 +32,11 @@ public static class NetworkTweaks
 
 public sealed class CloudflareDnsTweak : TweakBase
 {
-    public CloudflareDnsTweak() : base("network.dns", "DNS Cloudflare (1.1.1.1 / 1.0.0.1)",
-        "Ustawia szybki publiczny DNS na aktywnych kartach sieciowych. Poprzednie ustawienia są zapamiętane.",
+    public CloudflareDnsTweak() : base("network.dns", "Cloudflare DNS (1.1.1.1 / 1.0.0.1)",
+        "Sets a fast public DNS on active network adapters. Previous settings are remembered.",
         TweakCategory.Network, RiskLevel.Advanced)
     {
-        Warning = "Zmienia dostawcę DNS - w sieciach firmowych/z filtrowaniem rodzicielskim może coś zablokować.";
+        Warning = "Changes your DNS provider - on corporate or parental-filtered networks it may block something.";
     }
 
     public override bool IsApplied()
@@ -47,7 +48,7 @@ public sealed class CloudflareDnsTweak : TweakBase
     public override void Apply()
     {
         var ad = DnsHelper.Adapters();
-        if (ad.Count == 0) throw new TweakSkippedException("Brak aktywnych kart sieciowych.");
+        if (ad.Count == 0) throw new TweakSkippedException(L.T("No active network adapters."));
         foreach (var a in ad)
         {
             Ctx.Backup.Record(Id, new BackupEntry { Kind = "dns", Key = a.Alias, Value = a.Dns });

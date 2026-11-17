@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -28,17 +29,17 @@ public static class ServiceHelper
 
     public static void SetStart(string name, int start, bool delayed)
     {
-        if (IsProtected(name)) throw new InvalidOperationException($"Usługa {name} jest chroniona i nie może być zmieniana.");
+        if (IsProtected(name)) throw new InvalidOperationException(L.F("Service {0} is protected and cannot be changed.", name));
         string mode = start switch
         {
             2 => delayed ? "delayed-auto" : "auto",
             3 => "demand",
             4 => "disabled",
-            _ => throw new InvalidOperationException("Nieobsługiwany typ startu: " + start)
+            _ => throw new InvalidOperationException(L.F("Unsupported start type: {0}", start))
         };
         var r = Proc.Run("sc.exe", new[] { "config", name, "start=", mode },
-            description: $"Ustawiłbym usługę {name} na tryb: {mode}");
-        if (!r.Ok) throw new InvalidOperationException($"sc config {name} nie powiodło się: {r.Text}");
+            description: L.F("Would set service {0} to mode: {1}", name, mode));
+        if (!r.Ok) throw new InvalidOperationException(L.F("sc config {0} failed: {1}", name, r.Text));
     }
 
     public static bool IsRunning(string name)
@@ -51,13 +52,13 @@ public static class ServiceHelper
     public static void Stop(string name)
     {
         if (IsProtected(name))
-            throw new InvalidOperationException($"Usługa {name} jest chroniona.");
+            throw new InvalidOperationException(L.F("Service {0} is protected.", name));
         if (!Ctx.DryRun && !IsRunning(name)) return;
-        Proc.Run("net.exe", new[] { "stop", name, "/y" }, timeoutMs: 60_000, description: $"Zatrzymałbym usługę {name}");
+        Proc.Run("net.exe", new[] { "stop", name, "/y" }, timeoutMs: 60_000, description: L.F("Would stop service {0}", name));
     }
 
     public static void StartNow(string name) =>
-        Proc.Run("net.exe", new[] { "start", name }, timeoutMs: 60_000, description: $"Uruchomiłbym usługę {name}");
+        Proc.Run("net.exe", new[] { "start", name }, timeoutMs: 60_000, description: L.F("Would start service {0}", name));
 }
 
 /// <summary>powercfg wrapper.</summary>
@@ -96,7 +97,7 @@ public static class PowerCfg
     public static void SetIndex(string scheme, string sub, string setting, bool ac, uint value)
     {
         var r = Proc.Run("powercfg.exe", new[] { ac ? "/setacvalueindex" : "/setdcvalueindex", scheme, sub, setting, value.ToString() },
-            description: $"Ustawiłbym powercfg {(ac ? "AC" : "DC")} {sub}/{setting} = {value}");
+            description: L.F("Would set powercfg {0} {1}/{2} = {3}", ac ? "AC" : "DC", sub, setting, value));
         if (!r.Ok) throw new InvalidOperationException("powercfg: " + r.Text);
         // Re-apply only if this scheme is the active one (never switch plans as a side effect of a revert).
         if (Ctx.DryRun || Active().Guid.Equals(scheme, StringComparison.OrdinalIgnoreCase)) SetActive(scheme);
@@ -104,12 +105,12 @@ public static class PowerCfg
 
     public static void SetActive(string scheme)
     {
-        var r = Proc.Run("powercfg.exe", new[] { "/setactive", scheme }, description: $"Aktywowałbym plan zasilania {scheme}");
+        var r = Proc.Run("powercfg.exe", new[] { "/setactive", scheme }, description: L.F("Would activate power plan {0}", scheme));
         if (!r.Ok) throw new InvalidOperationException("powercfg /setactive: " + r.Text);
     }
 
     public static void Delete(string guid) =>
-        Proc.Run("powercfg.exe", new[] { "/delete", guid }, description: $"Usunąłbym plan zasilania {guid}");
+        Proc.Run("powercfg.exe", new[] { "/delete", guid }, description: L.F("Would delete power plan {0}", guid));
 }
 
 /// <summary>DNS helpers via PowerShell.</summary>
@@ -142,7 +143,7 @@ public static class DnsHelper
         string script = string.IsNullOrWhiteSpace(commaSeparated)
             ? $"Set-DnsClientServerAddress -InterfaceAlias '{PS.Q(alias)}' -ResetServerAddresses"
             : $"Set-DnsClientServerAddress -InterfaceAlias '{PS.Q(alias)}' -ServerAddresses ({string.Join(",", commaSeparated.Split(',').Select(a => "'" + PS.Q(a) + "'"))})";
-        var r = PS.Run(script, description: $"Ustawiłbym DNS na karcie '{alias}': {(commaSeparated == "" ? "automatyczny" : commaSeparated)}");
+        var r = PS.Run(script, description: L.F("Would set DNS on adapter '{0}': {1}", alias, commaSeparated == "" ? L.T("automatic") : commaSeparated));
         if (!r.Ok) throw new InvalidOperationException("DNS: " + r.Text);
     }
 }

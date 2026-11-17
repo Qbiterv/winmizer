@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -36,8 +37,8 @@ public static class StartupManager
 
         foreach (var (dir, label) in new[]
         {
-            (Environment.GetFolderPath(Environment.SpecialFolder.Startup), "Folder Autostart (użytkownik)"),
-            (Environment.GetFolderPath(Environment.SpecialFolder.CommonStartup), "Folder Autostart (wszyscy)")
+            (Environment.GetFolderPath(Environment.SpecialFolder.Startup), L.T("Startup folder (current user)")),
+            (Environment.GetFolderPath(Environment.SpecialFolder.CommonStartup), L.T("Startup folder (all users)"))
         })
         {
             try
@@ -71,10 +72,10 @@ public static class StartupManager
             string target = Path.Combine(Paths.DisabledStartupDir, Guid.NewGuid().ToString("N").Substring(0, 8) + "_" + item.Name);
             Ctx.Backup.Record(id, new BackupEntry { Kind = "startupfile", Key = item.Location, Name = item.Name, Value = target });
             Ctx.Backup.Save();
-            if (Ctx.DryRun) { Ctx.Log.Dry($"Przeniósłbym {item.Location} -> {target}"); return; }
+            if (Ctx.DryRun) { Ctx.Log.Dry(L.F("Would move {0} -> {1}", item.Location, target)); return; }
             Directory.CreateDirectory(Paths.DisabledStartupDir);
             File.Move(item.Location, target);
-            Ctx.Log.Info($"Przeniesiono {item.Location} -> {target}");
+            Ctx.Log.Info(L.F("Moved {0} -> {1}", item.Location, target));
         }
     }
 
@@ -88,9 +89,9 @@ public static class StartupManager
         }
         else if (e.Kind == "startupfile")
         {
-            if (Ctx.DryRun) { Ctx.Log.Dry($"Przywróciłbym {e.Value} -> {e.Key}"); return; }
+            if (Ctx.DryRun) { Ctx.Log.Dry(L.F("Would restore {0} -> {1}", e.Value, e.Key)); return; }
             if (File.Exists(e.Value)) File.Move(e.Value!, e.Key, false);
-            else Ctx.Log.Warn("Brak pliku do przywrócenia: " + e.Value);
+            else Ctx.Log.Warn(L.F("File to restore not found: {0}", e.Value));
         }
     }
 

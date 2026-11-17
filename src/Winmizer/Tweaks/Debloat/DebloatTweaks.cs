@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Winmizer.Core;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Tweaks.Debloat;
 
@@ -58,44 +59,44 @@ public static class DebloatTweaks
 
     private static readonly App[] Apps =
     {
-        new("Microsoft.549981C3F5F10", "Cortana", "Stary asystent głosowy Cortana. Na Windows 10 usuwa tylko aplikację; sam komponent systemowy ogranicza zasada w Prywatności.", true),
-        new("Microsoft.BingNews", "Microsoft News (Bing News)", "Aplikacja z wiadomościami.", true),
-        new("Microsoft.BingWeather", "Pogoda (Bing Weather)", "Aplikacja pogodowa MSN.", true),
-        new("Microsoft.BingFinance", "Finanse (Bing Finance)", "Aplikacja finansowa MSN.", true),
-        new("Microsoft.BingSports", "Sport (Bing Sports)", "Aplikacja sportowa MSN.", true),
-        new("Microsoft.BingSearch", "Bing Search (dodatek do Start)", "Integracja wyszukiwania Bing.", true, Os: OsSupport.Win11),
-        new("Microsoft.GetHelp", "Uzyskaj pomoc (Get Help)", "Aplikacja pomocy technicznej.", true),
-        new("Microsoft.Getstarted", "Porady (Tips)", "Aplikacja z poradami Windows.", true),
-        new("Microsoft.MicrosoftOfficeHub", "Microsoft 365 (Office Hub)", "Reklamowy skrót do pakietu Office.", true),
-        new("Microsoft.MicrosoftSolitaireCollection", "Microsoft Solitaire Collection", "Gry karciane z reklamami.", true),
-        new("Microsoft.People", "Osoby (People)", "Książka adresowa.", true),
-        new("Microsoft.WindowsFeedbackHub", "Centrum opinii (Feedback Hub)", "Wysyłanie opinii do Microsoft.", true),
-        new("Microsoft.WindowsMaps", "Mapy Windows", "Aplikacja map.", true),
-        new("Clipchamp.Clipchamp", "Clipchamp", "Edytor wideo Microsoft.", true, Os: OsSupport.Win11),
-        new("Microsoft.Todos", "Microsoft To Do", "Lista zadań.", true),
-        new("Microsoft.PowerAutomateDesktop", "Power Automate", "Automatyzacja zadań.", true),
-        new("MicrosoftTeams", "Microsoft Teams (konsumencki)", "Wbudowany Teams (Chat).", true, Os: OsSupport.Win11),
-        new("MSTeams", "Microsoft Teams (nowy)", "Nowa wersja Teams preinstalowana w systemie.", true, Os: OsSupport.Win11),
-        new("Microsoft.Copilot", "Microsoft Copilot", "Aplikacja Copilot.", true, Os: OsSupport.Win11),
-        new("Microsoft.Windows.Ai.Copilot.Provider", "Dostawca Windows Copilot", "Komponent Copilot.", true, Os: OsSupport.Win11),
-        new("Microsoft.SkypeApp", "Skype", "Komunikator Skype.", true),
-        new("Microsoft.MixedReality.Portal", "Portal rzeczywistości mieszanej", "Dla gogli VR Windows MR.", true),
-        new("Microsoft.Microsoft3DViewer", "Przeglądarka 3D (3D Viewer)", "Windows 10: przeglądarka modeli 3D.", true, Os: OsSupport.Win10),
-        new("Microsoft.MSPaint", "Paint 3D", "Windows 10: Paint 3D (to nie jest klasyczny Paint - ten zostaje).", true, Os: OsSupport.Win10),
-        new("Microsoft.Print3D", "Print 3D", "Windows 10: aplikacja do druku 3D.", true, Os: OsSupport.Win10),
-        new("*Disney*", "Disney+", "Preinstalowana aplikacja promocyjna.", true),
-        new("SpotifyAB.SpotifyMusic", "Spotify", "Preinstalowana aplikacja promocyjna (możesz ją zainstalować ponownie).", true),
-        new("*TikTok*", "TikTok", "Preinstalowana aplikacja promocyjna.", true),
-        new("*CandyCrush*", "Candy Crush i podobne gry", "Promocyjne gry (Candy Crush Saga/Soda itp.).", true),
-        new("*Facebook*", "Facebook", "Preinstalowana aplikacja promocyjna.", true),
-        new("*Instagram*", "Instagram", "Preinstalowana aplikacja promocyjna.", true),
-        new("*Twitter*", "Twitter / X", "Preinstalowana aplikacja promocyjna.", true),
-        new("Microsoft.ZuneMusic", "Odtwarzacz multimediów (Groove/ZuneMusic)", "W Windows 11 to nowy Media Player - usuń tylko jeśli używasz innego odtwarzacza.", false, RiskLevel.Moderate),
-        new("Microsoft.ZuneVideo", "Filmy i TV (ZuneVideo)", "Aplikacja do filmów.", false, RiskLevel.Moderate),
-        new("Microsoft.YourPhone", "Łączność z telefonem (Phone Link)", "Usuń, jeśli nie łączysz telefonu z Windows.", false, RiskLevel.Moderate),
-        new("Microsoft.WindowsAlarms", "Zegar i alarmy", "Alarmy, minutniki, stoper.", false, RiskLevel.Moderate),
-        new("Microsoft.XboxGamingOverlay", "Xbox Game Bar (nakładka)", "Nakładka Win+G. Tożsamość Xbox i Gaming Services zostają (potrzebne grom z Game Pass).", false, RiskLevel.Moderate,
-            "Gry z Game Pass nadal działają, ale stracisz nakładkę Win+G."),
+        new("Microsoft.549981C3F5F10", "Cortana", "The old Cortana voice assistant. On Windows 10 this removes only the app; the system component is limited by a Privacy policy.", true),
+        new("Microsoft.BingNews", "Microsoft News (Bing News)", "News app.", true),
+        new("Microsoft.BingWeather", "Weather (Bing Weather)", "MSN weather app.", true),
+        new("Microsoft.BingFinance", "Finance (Bing Finance)", "MSN finance app.", true),
+        new("Microsoft.BingSports", "Sports (Bing Sports)", "MSN sports app.", true),
+        new("Microsoft.BingSearch", "Bing Search (Start add-on)", "Bing search integration.", true, Os: OsSupport.Win11),
+        new("Microsoft.GetHelp", "Get Help", "Support app.", true),
+        new("Microsoft.Getstarted", "Tips", "Windows tips app.", true),
+        new("Microsoft.MicrosoftOfficeHub", "Microsoft 365 (Office Hub)", "Advertising shortcut to the Office suite.", true),
+        new("Microsoft.MicrosoftSolitaireCollection", "Microsoft Solitaire Collection", "Card games with ads.", true),
+        new("Microsoft.People", "People", "Address book.", true),
+        new("Microsoft.WindowsFeedbackHub", "Feedback Hub", "Sends feedback to Microsoft.", true),
+        new("Microsoft.WindowsMaps", "Windows Maps", "Maps app.", true),
+        new("Clipchamp.Clipchamp", "Clipchamp", "Microsoft video editor.", true, Os: OsSupport.Win11),
+        new("Microsoft.Todos", "Microsoft To Do", "To-do list.", true),
+        new("Microsoft.PowerAutomateDesktop", "Power Automate", "Task automation.", true),
+        new("MicrosoftTeams", "Microsoft Teams (consumer)", "Built-in Teams (Chat).", true, Os: OsSupport.Win11),
+        new("MSTeams", "Microsoft Teams (new)", "The new Teams version preinstalled with the system.", true, Os: OsSupport.Win11),
+        new("Microsoft.Copilot", "Microsoft Copilot", "The Copilot app.", true, Os: OsSupport.Win11),
+        new("Microsoft.Windows.Ai.Copilot.Provider", "Windows Copilot provider", "Copilot component.", true, Os: OsSupport.Win11),
+        new("Microsoft.SkypeApp", "Skype", "Skype messenger.", true),
+        new("Microsoft.MixedReality.Portal", "Mixed Reality Portal", "For Windows MR VR headsets.", true),
+        new("Microsoft.Microsoft3DViewer", "3D Viewer", "Windows 10: 3D model viewer.", true, Os: OsSupport.Win10),
+        new("Microsoft.MSPaint", "Paint 3D", "Windows 10: Paint 3D (not the classic Paint - that one stays).", true, Os: OsSupport.Win10),
+        new("Microsoft.Print3D", "Print 3D", "Windows 10: 3D printing app.", true, Os: OsSupport.Win10),
+        new("*Disney*", "Disney+", "Preinstalled promotional app.", true),
+        new("SpotifyAB.SpotifyMusic", "Spotify", "Preinstalled promotional app (you can reinstall it).", true),
+        new("*TikTok*", "TikTok", "Preinstalled promotional app.", true),
+        new("*CandyCrush*", "Candy Crush and similar games", "Promotional games (Candy Crush Saga/Soda etc.).", true),
+        new("*Facebook*", "Facebook", "Preinstalled promotional app.", true),
+        new("*Instagram*", "Instagram", "Preinstalled promotional app.", true),
+        new("*Twitter*", "Twitter / X", "Preinstalled promotional app.", true),
+        new("Microsoft.ZuneMusic", "Media Player (Groove/ZuneMusic)", "On Windows 11 this is the new Media Player - remove it only if you use another player.", false, RiskLevel.Moderate),
+        new("Microsoft.ZuneVideo", "Movies & TV (ZuneVideo)", "Movie app.", false, RiskLevel.Moderate),
+        new("Microsoft.YourPhone", "Phone Link", "Remove it if you don't connect your phone to Windows.", false, RiskLevel.Moderate),
+        new("Microsoft.WindowsAlarms", "Clock & Alarms", "Alarms, timers, stopwatch.", false, RiskLevel.Moderate),
+        new("Microsoft.XboxGamingOverlay", "Xbox Game Bar (overlay)", "The Win+G overlay. Xbox identity and Gaming Services stay (needed by Game Pass games).", false, RiskLevel.Moderate,
+            "Game Pass games keep working, but you lose the Win+G overlay."),
     };
 
     public static IEnumerable<ITweak> Create() => Apps.Select(a =>
@@ -113,7 +114,7 @@ public sealed class AppxTweak : TweakBase
         : base("debloat." + Regex.Replace(pattern, "[^A-Za-z0-9.]", "").ToLowerInvariant(), name, description, TweakCategory.Debloat, risk)
     {
         if (DebloatTweaks.IsProtected(pattern))
-            throw new InvalidOperationException($"Pakiet {pattern} jest chroniony - nie można utworzyć tweaku.");
+            throw new InvalidOperationException(L.F("Package {0} is protected - cannot create a tweak for it.", pattern));
         _pattern = pattern;
         DefaultSelected = recommended;
         Warning = warning;
@@ -133,7 +134,7 @@ public sealed class AppxTweak : TweakBase
             $"$p='{p}'; $prot=@({prot}); " +
             "Get-AppxPackage -AllUsers -Name $p | Where-Object { $n=$_.Name; -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxPackage -Package $_.PackageFullName -AllUsers } catch { Write-Output ('WARN ' + $_.Exception.Message) } }; " +
             "Get-AppxProvisionedPackage -Online | Where-Object { $n=$_.DisplayName; $n -like $p -and -not ($prot | Where-Object { $n -like $_ }) } | ForEach-Object { try { Remove-AppxProvisionedPackage -Online -PackageName $_.PackageName | Out-Null } catch { Write-Output ('WARN ' + $_.Exception.Message) } }";
-        var r = PS.Run(script, description: $"Usunąłbym pakiet Appx: {_pattern} (Remove-AppxPackage -AllUsers + Remove-AppxProvisionedPackage)");
+        var r = PS.Run(script, description: L.F("Would remove Appx package: {0} (Remove-AppxPackage -AllUsers + Remove-AppxProvisionedPackage)", _pattern));
         foreach (var line in r.Out.Split('\n').Where(l => l.StartsWith("WARN"))) Ctx.Log.Warn($"{_pattern}: {line.Trim()}");
         if (!r.Ok) throw new InvalidOperationException(r.Text);
         AppxCache.Invalidate();
@@ -141,9 +142,9 @@ public sealed class AppxTweak : TweakBase
 
     public override void Revert()
     {
-        var r = PS.Run($"$f=Get-AppxPackage -AllUsers -Name '{PS.Q(_pattern)}'; if(-not $f){{ throw 'brak' }}; " +
+        var r = PS.Run($"$f=Get-AppxPackage -AllUsers -Name '{PS.Q(_pattern)}'; if(-not $f){{ throw 'missing' }}; " +
                        "$f | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }");
-        if (!r.Ok) throw new TweakSkippedException("Usunięta aplikacja wymaga ponownej instalacji ze sklepu Microsoft Store (lub: winget install).");
+        if (!r.Ok) throw new TweakSkippedException(L.T("The removed app must be reinstalled from the Microsoft Store (or with winget install)."));
         AppxCache.Invalidate();
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 
 namespace Winmizer.Core;
 
@@ -8,7 +9,7 @@ public static class Restorer
     public static void RestoreTweak(string id)
     {
         var entries = Ctx.Backup.Entries(id).ToList();
-        if (entries.Count == 0) throw new TweakSkippedException("Brak kopii zapasowej - nic do przywrócenia.");
+        if (entries.Count == 0) throw new TweakSkippedException(L.T("No backup - nothing to restore."));
 
         var errors = new List<string>();
         foreach (var e in Enumerable.Reverse(entries)) // undo in reverse order
@@ -46,7 +47,7 @@ public static class Restorer
                 if (e.Value != "Disabled")
                 {
                     var r = PS.Run($"Enable-ScheduledTask -TaskPath '{PS.Q(e.Key)}' -TaskName '{PS.Q(e.Name)}' | Out-Null",
-                        description: $"Włączyłbym zadanie {e.Key}{e.Name}");
+                        description: L.F("Would enable task {0}{1}", e.Key, e.Name));
                     if (!r.Ok) throw new InvalidOperationException(r.Text);
                 }
                 break;
@@ -61,7 +62,7 @@ public static class Restorer
             case "fsutil":
                 {
                     var r = Proc.Run("fsutil.exe", new[] { "behavior", "set", e.Key, e.Value ?? "0" },
-                        description: $"Przywróciłbym fsutil {e.Key} = {e.Value}");
+                        description: L.F("Would restore fsutil {0} = {1}", e.Key, e.Value));
                     if (!r.Ok) throw new InvalidOperationException(r.Text);
                     break;
                 }
@@ -71,7 +72,7 @@ public static class Restorer
                 break;
 
             case "hibernate":
-                Proc.Run("powercfg.exe", new[] { "-h", e.Value ?? "on" }, description: $"powercfg -h {e.Value}");
+                Proc.Run("powercfg.exe", new[] { "-h", e.Value ?? "on" }, description: L.F("Would run powercfg -h {0}", e.Value));
                 break;
 
             case "activescheme":
@@ -80,7 +81,7 @@ public static class Restorer
 
             case "createdscheme":
                 if (PowerCfg.Active().Guid.Equals(e.Key, StringComparison.OrdinalIgnoreCase))
-                    Ctx.Log.Warn("Plan Winmizer Ultimate jest nadal aktywny - nie usuwam go.");
+                    Ctx.Log.Warn(L.T("The Winmizer Ultimate plan is still active - not deleting it."));
                 else PowerCfg.Delete(e.Key);
                 break;
 
@@ -90,7 +91,7 @@ public static class Restorer
                 break;
 
             default:
-                Ctx.Log.Warn("Nieznany rodzaj kopii zapasowej: " + e.Kind);
+                Ctx.Log.Warn(L.F("Unknown backup entry kind: {0}", e.Kind));
                 break;
         }
     }

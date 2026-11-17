@@ -1,3 +1,5 @@
+using Winmizer.Core.Localization;
+
 namespace Winmizer.Core;
 
 public enum RiskLevel { Safe, Moderate, Advanced }
@@ -47,15 +49,15 @@ public sealed class TweakSkippedException : Exception
 
 public sealed record TweakResult(ITweak Tweak, ResultStatus Status, string Message);
 
-/// <summary>Polish UI labels for enums.</summary>
+/// <summary>Localized UI labels for enums.</summary>
 public static class Labels
 {
-    public static string Risk(RiskLevel r) => r switch
+    public static string Risk(RiskLevel r) => L.T(r switch
     {
-        RiskLevel.Safe => "Bezpieczny",
-        RiskLevel.Moderate => "Umiarkowany",
-        _ => "Zaawansowany"
-    };
+        RiskLevel.Safe => "Safe",
+        RiskLevel.Moderate => "Moderate",
+        _ => "Advanced"
+    });
 
     public static string RiskColor(RiskLevel r) => r switch
     {
@@ -64,18 +66,18 @@ public static class Labels
         _ => "red"
     };
 
-    public static string Category(TweakCategory c) => c switch
+    public static string Category(TweakCategory c) => L.T(c switch
     {
         TweakCategory.Gaming => "Gaming",
-        TweakCategory.Power => "Zasilanie",
-        TweakCategory.Privacy => "Prywatność i telemetria",
-        TweakCategory.Services => "Usługi",
-        TweakCategory.Network => "Sieć",
-        TweakCategory.Visual => "Wygląd i interfejs",
-        TweakCategory.Storage => "Dysk",
-        TweakCategory.Cleanup => "Czyszczenie",
-        TweakCategory.Debloat => "Odśmiecanie aplikacji",
+        TweakCategory.Power => "Power",
+        TweakCategory.Privacy => "Privacy & telemetry",
+        TweakCategory.Services => "Services",
+        TweakCategory.Network => "Network",
+        TweakCategory.Visual => "Appearance & UI",
+        TweakCategory.Storage => "Storage",
+        TweakCategory.Cleanup => "Cleanup",
+        TweakCategory.Debloat => "App debloat",
         TweakCategory.OneDrive => "OneDrive",
         _ => c.ToString()
-    };
+    });
 }

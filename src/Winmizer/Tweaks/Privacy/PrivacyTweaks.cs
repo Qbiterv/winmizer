@@ -1,4 +1,5 @@
 using Winmizer.Core;
+using Winmizer.Core.Localization;
 using static Winmizer.Core.R;
 
 namespace Winmizer.Tweaks.Privacy;
@@ -29,30 +30,30 @@ public static class PrivacyTweaks
     {
         var c = TweakCategory.Privacy;
 
-        yield return new RegistryTweak("privacy.telemetry", "Telemetria: poziom podstawowy",
-            "AllowTelemetry=1 (Podstawowe/Wymagane). Wartość 0 działa tylko w Enterprise, dlatego jej nie używamy. Usługi DiagTrack wyłączasz w kategorii Usługi.",
+        yield return new RegistryTweak("privacy.telemetry", "Telemetry: basic level",
+            "AllowTelemetry=1 (Basic/Required). Value 0 only works on Enterprise, so it isn't used. Turn off the DiagTrack services in the Services category.",
             c, RiskLevel.Safe, Dw(PolWin + @"\DataCollection", "AllowTelemetry", 1)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.adid", "Wyłącz identyfikator reklamowy",
-            "Aplikacje nie mogą używać Advertising ID do profilowania reklam.",
+        yield return new RegistryTweak("privacy.adid", "Disable advertising ID",
+            "Apps can no longer use the Advertising ID to profile you for ads.",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo", "Enabled", 0),
             Dw(PolWin + @"\AdvertisingInfo", "DisabledByGroupPolicy", 1)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.tailored", "Wyłącz spersonalizowane środowiska",
-            "Microsoft nie używa danych diagnostycznych do dopasowywania porad i reklam.",
+        yield return new RegistryTweak("privacy.tailored", "Disable tailored experiences",
+            "Microsoft doesn't use diagnostic data to personalize tips and ads.",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy", "TailoredExperiencesWithDiagnosticDataEnabled", 0)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.activity", "Wyłącz historię aktywności",
-            "Wyłącza zbieranie i wysyłanie historii aktywności (Oś czasu).",
+        yield return new RegistryTweak("privacy.activity", "Disable activity history",
+            "Stops collecting and uploading activity history (Timeline).",
             c, RiskLevel.Safe,
             Dw(PolWin + @"\System", "EnableActivityFeed", 0),
             Dw(PolWin + @"\System", "PublishUserActivities", 0),
             Dw(PolWin + @"\System", "UploadUserActivities", 0)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.consumer", "Wyłącz funkcje konsumenckie i sugerowane aplikacje",
-            "DisableWindowsConsumerFeatures=1 - Windows nie instaluje automatycznie promowanych aplikacji (Candy Crush itp.).",
+        yield return new RegistryTweak("privacy.consumer", "Disable consumer features and suggested apps",
+            "DisableWindowsConsumerFeatures=1 - Windows no longer installs promoted apps automatically (Candy Crush etc.).",
             c, RiskLevel.Safe,
             Dw(PolWin + @"\CloudContent", "DisableWindowsConsumerFeatures", 1),
             Dw(Cdm, "SilentInstalledAppsEnabled", 0),
@@ -60,13 +61,13 @@ public static class PrivacyTweaks
             Dw(Cdm, "OemPreInstalledAppsEnabled", 0),
             Dw(Cdm, "ContentDeliveryAllowed", 0)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.startads", "Wyłącz reklamy i sugestie w Menu Start",
-            "Usuwa sugerowane aplikacje/reklamy w Start i Ustawieniach oraz polecane elementy.",
+        yield return new RegistryTweak("privacy.startads", "Disable ads and suggestions in the Start menu",
+            "Removes suggested apps/ads in Start and Settings, plus recommended items.",
             c, RiskLevel.Safe,
             () => StartAdsEntries()) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.lockscreen", "Wyłącz wskazówki i reklamy na ekranie blokady",
-            "Ekran blokady bez \"ciekawostek\", Spotlight-reklam i wskazówek.",
+        yield return new RegistryTweak("privacy.lockscreen", "Disable tips and ads on the lock screen",
+            "A lock screen without fun facts, Spotlight ads and tips.",
             c, RiskLevel.Safe,
             Dw(Cdm, "RotatingLockScreenOverlayEnabled", 0),
             Dw(Cdm, "SubscribedContent-338387Enabled", 0),
@@ -74,32 +75,32 @@ public static class PrivacyTweaks
 
         yield return new TelemetryTasksTweak();
 
-        yield return new RegistryTweak("privacy.cortana", "Wyłącz Cortanę (zasada AllowCortana=0)",
-            "Wyłącza Cortanę przez zasadę systemową. Bezpieczne - Wyszukiwanie Windows działa normalnie.",
+        yield return new RegistryTweak("privacy.cortana", "Disable Cortana (AllowCortana=0 policy)",
+            "Turns Cortana off via system policy. Safe - Windows Search keeps working normally.",
             c, RiskLevel.Safe, Dw(PolWin + @"\Windows Search", "AllowCortana", 0)) { Recommended = true };
 
-        yield return new RegistryTweak("privacy.copilot", "Wyłącz Windows Copilot (zasada)",
-            "TurnOffWindowsCopilot=1 - ukrywa i wyłącza Copilot w systemie.",
+        yield return new RegistryTweak("privacy.copilot", "Disable Windows Copilot (policy)",
+            "TurnOffWindowsCopilot=1 - hides and disables Copilot in the system.",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot", "TurnOffWindowsCopilot", 1),
             Dw(PolWin + @"\WindowsCopilot", "TurnOffWindowsCopilot", 1)) { Recommended = true, SupportedOn = OsSupport.Win11 };
 
         // ---- Windows 10 equivalents (shown only on Windows 10) ----
-        yield return new RegistryTweak("privacy.cortana.win10", "Windows 10: ogranicz Cortanę (ekran blokady, zgoda)",
-            "Cortana na Windows 10 to osobny komponent: blokuje ją na ekranie blokady (AllowCortanaAboveLock=0) i cofa zgodę użytkownika (CortanaConsent=0). Uzupełnia zasadę AllowCortana=0.",
+        yield return new RegistryTweak("privacy.cortana.win10", "Windows 10: restrict Cortana (lock screen, consent)",
+            "On Windows 10 Cortana is a separate component: this blocks it on the lock screen (AllowCortanaAboveLock=0) and withdraws user consent (CortanaConsent=0). Complements the AllowCortana=0 policy.",
             c, RiskLevel.Safe,
             Dw(PolWin + @"\Windows Search", "AllowCortanaAboveLock", 0),
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Search", "CortanaConsent", 0))
         { Recommended = true, SupportedOn = OsSupport.Win10 };
 
-        yield return new RegistryTweak("privacy.newsfeed", "Windows 10: wyłącz \"Wiadomości i zainteresowania\" na pasku zadań",
-            "Zasada EnableFeeds=0 usuwa widżet pogody/wiadomości z paska zadań (reklamy i śledzenie MSN, zużycie RAM przez Edge WebView).",
+        yield return new RegistryTweak("privacy.newsfeed", "Windows 10: disable \"News and interests\" on the taskbar",
+            "The EnableFeeds=0 policy removes the weather/news widget from the taskbar (MSN ads and tracking, RAM used by Edge WebView).",
             c, RiskLevel.Safe,
             Dw(PolWin + @"\Windows Feeds", "EnableFeeds", 0))
         { Recommended = true, SupportedOn = OsSupport.Win10, MinBuild = 19041 };
 
-        yield return new RegistryTweak("privacy.websearch", "Wyłącz wyszukiwanie internetowe (Bing) w Start",
-            "Wyszukiwanie w Start pokazuje tylko wyniki lokalne (BingSearchEnabled=0, DisableSearchBoxSuggestions=1).",
+        yield return new RegistryTweak("privacy.websearch", "Disable web search (Bing) in Start",
+            "Search in Start shows local results only (BingSearchEnabled=0, DisableSearchBoxSuggestions=1).",
             c, RiskLevel.Safe,
             Dw(@"HKCU\Software\Microsoft\Windows\CurrentVersion\Search", "BingSearchEnabled", 0),
             Dw(@"HKCU\Software\Policies\Microsoft\Windows\Explorer", "DisableSearchBoxSuggestions", 1)) { Recommended = true };
@@ -119,8 +120,8 @@ public sealed class TelemetryTasksTweak : TweakBase
         (@"\Microsoft\Windows\Feedback\Siuf\", "DmClientOnScenarioDownload"),
     };
 
-    public TelemetryTasksTweak() : base("privacy.tasks", "Wyłącz zadania telemetryczne",
-        "Wyłącza harmonogramowane zadania: Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip, DmClient. Windows Update nie jest naruszony.",
+    public TelemetryTasksTweak() : base("privacy.tasks", "Disable telemetry tasks",
+        "Disables the scheduled tasks Compatibility Appraiser, ProgramDataUpdater, Consolidator, UsbCeip and DmClient. Windows Update is not affected.",
         TweakCategory.Privacy, RiskLevel.Safe)
     { }
 
@@ -152,8 +153,8 @@ public sealed class TelemetryTasksTweak : TweakBase
             Ctx.Backup.Record(Id, new BackupEntry { Kind = "task", Key = t.Path, Name = t.Name, Value = t.State });
             Ctx.Backup.Save();
             var r = PS.Run($"Disable-ScheduledTask -TaskPath '{PS.Q(t.Path)}' -TaskName '{PS.Q(t.Name)}' | Out-Null",
-                description: $"Wyłączyłbym zadanie {t.Path}{t.Name}");
-            if (!r.Ok) Ctx.Log.Warn($"Zadanie {t.Name}: {r.Text}");
+                description: L.F("Would disable task {0}{1}", t.Path, t.Name));
+            if (!r.Ok) Ctx.Log.Warn(L.F("Task {0}: {1}", t.Name, r.Text));
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Winmizer.Core.Localization;
 using Winmizer.Tweaks;
 
 namespace Winmizer.Core;
@@ -13,7 +14,7 @@ public static class RestorePoint
     {
         if (Ctx.DryRun)
         {
-            Ctx.Log.Dry("Utworzyłbym punkt przywracania systemu (Checkpoint-Computer).");
+            Ctx.Log.Dry(L.T("Would create a system restore point (Checkpoint-Computer)."));
             return (true, "dry-run");
         }
 
@@ -24,11 +25,11 @@ public static class RestorePoint
             Reg.Set(SrKey, FreqName, 0u, RegistryValueKind.DWord);
             var r = PS.Run(
                 "Enable-ComputerRestore -Drive 'C:\\'; " +
-                "Checkpoint-Computer -Description 'Winmizer - przed optymalizacja' -RestorePointType MODIFY_SETTINGS",
+                "Checkpoint-Computer -Description 'Winmizer - before optimization' -RestorePointType MODIFY_SETTINGS",
                 timeoutMs: 300_000);
             if (!r.Ok) return (false, r.Text);
             Ctx.Backup.SetRestorePoint(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            Ctx.Log.Info("Utworzono punkt przywracania systemu.");
+            Ctx.Log.Info(L.T("System restore point created."));
             return (true, "OK");
         }
         catch (Exception ex) { return (false, ex.Message); }
@@ -62,7 +63,7 @@ public sealed class TweakEngine
                 if (!t.IsApplicable)
                     res = new TweakResult(t, ResultStatus.Skipped, OsInfo.NotApplicableReason(t.SupportedOn, t.MinBuild));
                 else if (!t.IsAction && t.IsApplied())
-                    res = new TweakResult(t, ResultStatus.Skipped, "Już zastosowane");
+                    res = new TweakResult(t, ResultStatus.Skipped, L.T("Already applied"));
                 else
                 {
                     Ctx.Log.Info($"APPLY {t.Id}");
@@ -148,7 +149,7 @@ public sealed class TweakEngine
     /// <summary>Placeholder for backup entries without a catalog tweak (e.g. disabled startup apps).</summary>
     private sealed class BackupOnlyItem : TweakBase
     {
-        public BackupOnlyItem(string id) : base(id, id.StartsWith("startup:") ? "Autostart: " + id[(id.IndexOf('|') + 1)..] : id,
+        public BackupOnlyItem(string id) : base(id, id.StartsWith("startup:") ? L.F("Startup: {0}", id[(id.IndexOf('|') + 1)..]) : id,
             "", TweakCategory.Services, RiskLevel.Safe) { }
         public override bool IsApplied() => true;
         public override void Apply() { }

@@ -6,6 +6,7 @@
 
 **Konsolowy optymalizator Windows 10/11 dla graczy: bezpieczny, w pełni odwracalny i po polsku.**
 
+[![CI](https://github.com/Qbiterv/winmizer/actions/workflows/ci.yml/badge.svg)](https://github.com/Qbiterv/winmizer/actions/workflows/ci.yml)
 [![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#zgodność-z-windows-10-i-11)
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![Licencja: MIT](https://img.shields.io/badge/licencja-MIT-green.svg)](LICENSE)
@@ -126,6 +127,17 @@ dotnet build                       # zwykła kompilacja
 | `Winmizer-<wersja>-<arch>.msi` | instalator (x64, arm64, x86) |
 | `Winmizer-<wersja>-win-<arch>.zip` | wersja przenośna |
 | `win-<arch>\Winmizer.exe` | gotowy plik wykonywalny |
+
+### Wydania / Release
+
+Wydania buduje GitHub Actions (`.github/workflows/release.yml`) po wypchnięciu tagu `v*`. Wersja pochodzi z tagu (bez `v`) i trafia do exe, zipów oraz MSI.
+
+```powershell
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+Workflow zbuduje exe, zipy i MSI dla x64, arm64 i x86, wygeneruje `SHA256SUMS.txt` i opublikuje wszystko jako GitHub Release z automatycznymi notatkami. Lokalnie to samo: `.\build.ps1 -Version 1.0.1`. Zwykły build (CI) dla każdego pusha do `main` i pull requesta: `.github/workflows/ci.yml`.
 
 ### Alternatywa dla developerów: `install.ps1`
 
@@ -433,3 +445,11 @@ Winmizer zmienia ustawienia systemu. Choć tworzy punkt przywracania i kopię or
 ## Licencja
 
 [MIT](LICENSE) © 2026 Qbiterv
+
+---
+
+<p align="center">
+  <a href="https://claude.com/claude-code">
+    <img src="https://img.shields.io/badge/This%20project%20is-Claude%20Coded-D97757?style=for-the-badge&logo=claude&logoColor=white" alt="This project is Claude Coded">
+  </a>
+</p>

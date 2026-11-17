@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- The app version is shown under the banner and in the console window title.
+- New `--version` / `-v` flag.
+
 ## 1.0.1
 
 ### Fixed

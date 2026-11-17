@@ -11,7 +11,7 @@
     <ApplicationIcon>Assets\winmizer.ico</ApplicationIcon>
     <InvariantGlobalization>true</InvariantGlobalization>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Product>Winmizer</Product>
     <Description>Windows 10/11 gaming optimization console tool</Description>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
